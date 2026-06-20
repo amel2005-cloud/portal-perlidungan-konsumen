@@ -42,7 +42,8 @@ kronologis, no_hp, email, isi_pernyataan = "", "", "", ""
 tipe_surat = st.selectbox("Pilih Jenis Layanan:", ["Surat Pengaduan", "Surat Pernyataan"])
 nama = st.text_input("Nama Lengkap")
 nik = st.text_input("NIK / Nomor Identitas")
-nik = st.text_input("NIK / Nomor Identitas")
+if nik and (len(nik) != 16 or not nik.isdigit()):
+    st.warning("NIK harus 16 digit angka.")
 alamat = st.text_area("Alamat")
 
 if tipe_surat == "Surat Pengaduan":

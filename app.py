@@ -98,7 +98,6 @@ if st.button("PROSES & CETAK SURAT"):
     pdf.output("surat_hasil.pdf")
     with open("surat_hasil.pdf", "rb") as f:
         st.download_button("DOWNLOAD DOKUMEN", f, file_name="surat_hasil.pdf")
-if nik and (len(nik) != 16 or not nik.isdigit()):
-    st.warning("NIK harus 16 digit angka.")
+
         st.markdown("---")
 st.caption("© 2026 Otoritas Jasa Keuangan & Pemerintah Kabupaten Jember | Layanan Terintegrasi")

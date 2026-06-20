@@ -24,6 +24,7 @@ st.markdown("""
 
 
 # --- HEADER PORTAL ---
+st.image("image.png", width=150)
 st.title("PORTAL PERLINDUNGAN KONSUMEN")
 st.markdown("---")
 st.subheader("Formulir Layanan Surat Resmi OJK JEMBER")

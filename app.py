@@ -26,7 +26,7 @@ st.markdown("""
 # --- HEADER PORTAL ---
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-st.image("image.png", width=150)
+    st.image("image.png", width=150)
 st.title("PORTAL PERLINDUNGAN KONSUMEN")
 st.markdown("---")
 st.subheader("Formulir Layanan Surat Resmi OJK JEMBER")

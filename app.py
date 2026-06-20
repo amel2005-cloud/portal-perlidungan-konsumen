@@ -1,5 +1,6 @@
 import streamlit as st
 from fpdf import FPDF
+
 st.markdown("""
     <style>
     /* Efek Grid Kertas */
@@ -22,7 +23,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-
 # --- HEADER PORTAL ---
 col1, col2, col3 = st.columns([2, 1, 2])
 with col2:
@@ -36,6 +36,12 @@ def cetak_baris(pdf, label, nilai):
     pdf.cell(40, 8, txt=label, ln=0)
     pdf.cell(5, 8, txt=":", ln=0)
     pdf.cell(0, 8, txt=nilai, ln=1)
+
+# --- FUNGSI PEMBERSIH TEKS (biar PDF gak error karena emoji/karakter aneh) ---
+def bersihkan_teks(teks):
+    if not teks:
+        return ""
+    return teks.encode('latin-1', 'replace').decode('latin-1')
 
 # --- INPUT DATA ---
 kronologis, no_hp, email, isi_pernyataan = "", "", "", ""
@@ -58,47 +64,51 @@ tanggal_ttd = st.date_input("Tanggal")
 
 # --- GENERATOR PDF ---
 if st.button("PROSES & CETAK SURAT"):
-    pdf = FPDF()
-    pdf.add_page()
-    
-    # Elemen Header PDF
-    pdf.set_font("Arial", 'B', 16)
-    pdf.cell(0, 10, txt=tipe_surat.upper(), ln=True, align='C')
-    pdf.set_fill_color(178, 34, 34) # Warna Merah OJK
-    pdf.cell(0, 1, "", ln=True, fill=True)
-    pdf.ln(10)
-    
-    pdf.set_font("Arial", size=12)
-    
-    if tipe_surat == "Surat Pengaduan":
-        pdf.cell(0, 8, txt="Saya yang bertanda tangan di bawah ini :", ln=True)
-        cetak_baris(pdf, "Nama", nama)
-        cetak_baris(pdf, "NIK", nik)
-        cetak_baris(pdf, "Alamat", alamat)
-        cetak_baris(pdf, "No. HP", no_hp)
-        cetak_baris(pdf, "Email", email)
-        pdf.ln(5)
-        pdf.cell(0, 8, txt="Kronologis permasalahan:", ln=True)
-        pdf.multi_cell(0, 8, txt=kronologis)
+    if len(nik) != 16 or not nik.isdigit():
+        st.error("⚠️ NIK harus berupa 16 digit angka!")
     else:
-        pdf.multi_cell(0, 8, txt="Sehubungan dengan pengajuan penyelesaian pengaduan melalui Aplikasi Portal Perlindungan Konsumen (APPK), dengan ini saya:")
-        pdf.ln(2)
-        cetak_baris(pdf, "Nama", nama)
-        cetak_baris(pdf, "Nomor Identitas", nik)
-        cetak_baris(pdf, "Alamat", alamat)
-        pdf.ln(5)
-        pdf.multi_cell(0, 8, txt=f"{isi_pernyataan}")
+        pdf = FPDF()
+        pdf.add_page()
+        
+        # Elemen Header PDF
+        pdf.set_font("Arial", 'B', 16)
+        pdf.cell(0, 10, txt=tipe_surat.upper(), ln=True, align='C')
+        pdf.set_fill_color(178, 34, 34) # Warna Merah OJK
+        pdf.cell(0, 1, "", ln=True, fill=True)
+        pdf.ln(10)
+        
+        pdf.set_font("Arial", size=12)
+        
+        if tipe_surat == "Surat Pengaduan":
+            pdf.cell(0, 8, txt="Saya yang bertanda tangan di bawah ini :", ln=True)
+            cetak_baris(pdf, "Nama", bersihkan_teks(nama))
+            cetak_baris(pdf, "NIK", bersihkan_teks(nik))
+            cetak_baris(pdf, "Alamat", bersihkan_teks(alamat))
+            cetak_baris(pdf, "No. HP", bersihkan_teks(no_hp))
+            cetak_baris(pdf, "Email", bersihkan_teks(email))
+            pdf.ln(5)
+            pdf.cell(0, 8, txt="Kronologis permasalahan:", ln=True)
+            pdf.multi_cell(0, 8, txt=bersihkan_teks(kronologis))
+        else:
+            pdf.multi_cell(0, 8, txt="Sehubungan dengan pengajuan penyelesaian pengaduan melalui Aplikasi Portal Perlindungan Konsumen (APPK), dengan ini saya:")
+            pdf.ln(2)
+            cetak_baris(pdf, "Nama", bersihkan_teks(nama))
+            cetak_baris(pdf, "Nomor Identitas", bersihkan_teks(nik))
+            cetak_baris(pdf, "Alamat", bersihkan_teks(alamat))
+            pdf.ln(5)
+            pdf.multi_cell(0, 8, txt=bersihkan_teks(isi_pernyataan))
 
-    # Tanda Tangan
-    pdf.ln(20)
-    pdf.cell(110)
-    pdf.cell(0, 8, txt=f"{kota_ttd}, {tanggal_ttd.strftime('%d %B %Y')}", ln=True)
-    pdf.ln(20)
-    pdf.cell(110)
-    pdf.cell(0, 8, txt=f"({nama})", ln=True)
-    pdf.output("surat_hasil.pdf")
-    with open("surat_hasil.pdf", "rb") as f:
-        st.download_button("DOWNLOAD DOKUMEN", f, file_name="surat_hasil.pdf")
+        # Tanda Tangan
+        pdf.ln(20)
+        pdf.cell(110)
+        pdf.cell(0, 8, txt=bersihkan_teks(f"{kota_ttd}, {tanggal_ttd.strftime('%d %B %Y')}"), ln=True)
+        pdf.ln(20)
+        pdf.cell(110)
+        pdf.cell(0, 8, txt=bersihkan_teks(f"({nama})"), ln=True)
+        
+        pdf.output("surat_hasil.pdf")
+        with open("surat_hasil.pdf", "rb") as f:
+            st.download_button("DOWNLOAD DOKUMEN", f, file_name="surat_hasil.pdf")
 
-        st.markdown("---")
+st.markdown("---")
 st.caption("© 2026 Otoritas Jasa Keuangan & Pemerintah Kabupaten Jember | Layanan Terintegrasi")

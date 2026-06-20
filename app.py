@@ -43,8 +43,6 @@ tipe_surat = st.selectbox("Pilih Jenis Layanan:", ["Surat Pengaduan", "Surat Per
 nama = st.text_input("Nama Lengkap")
 nik = st.text_input("NIK / Nomor Identitas")
 nik = st.text_input("NIK / Nomor Identitas")
-if nik and (len(nik) != 16 or not nik.isdigit()):
-    st.warning("NIK harus 16 digit angka.")
 alamat = st.text_area("Alamat")
 
 if tipe_surat == "Surat Pengaduan":
@@ -97,10 +95,10 @@ if st.button("PROSES & CETAK SURAT"):
     pdf.ln(20)
     pdf.cell(110)
     pdf.cell(0, 8, txt=f"({nama})", ln=True)
-    
     pdf.output("surat_hasil.pdf")
     with open("surat_hasil.pdf", "rb") as f:
         st.download_button("DOWNLOAD DOKUMEN", f, file_name="surat_hasil.pdf")
-
+if nik and (len(nik) != 16 or not nik.isdigit()):
+    st.warning("NIK harus 16 digit angka.")
         st.markdown("---")
 st.caption("© 2026 Otoritas Jasa Keuangan & Pemerintah Kabupaten Jember | Layanan Terintegrasi")

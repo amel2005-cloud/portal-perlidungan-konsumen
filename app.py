@@ -88,7 +88,7 @@ def buat_pdf():
         pdf.ln(6)
         pdf.set_font("Arial", size=12)
         pdf.cell(0, 8, txt=bersihkan_teks(f"Nama PT yang dituju : {pt_dituju}"), ln=True)
-        pdf.ln(4)
+        pdf.ln(3)
         pdf.cell(0, 8, txt="Yang bertanda tangan di bawah ini:", ln=True)
         cetak_baris(pdf, "Nama", bersihkan_teks(nama))
         cetak_baris(pdf, "NIK", bersihkan_teks(nik))

@@ -1,7 +1,7 @@
 import streamlit as st
 from fpdf import FPDF
 from docx import Document
-from docx.shared import Pt, RGBColor
+from docx.shared import Pt
 from io import BytesIO
 
 st.markdown("""
@@ -11,7 +11,7 @@ st.markdown("""
         background-size: 20px 20px;
         background-color: #f8f9fa;
     }
-    h1 { color: #b22222; text-align: center; border-bottom: 3px solid #DAA520; padding-bottom: 10px; }
+    h1 { color: #b22222; text-align: center; padding-bottom: 10px; }
     .stTextInput, .stTextArea, .stSelectbox { border-left: 5px solid #b22222; }
     div.stButton > button:first-child { 
         background-color: #b22222; color: white; border: none; font-weight: bold; width: 100%;
@@ -35,8 +35,16 @@ def bersihkan_teks(teks):
         return ""
     return teks.encode('latin-1', 'replace').decode('latin-1')
 
+TEKS_PERNYATAAN = (
+    "menyatakan dengan sesungguhnya bahwa permasalahan yang saya ajukan melalui "
+    "Aplikasi Portal Perlindungan Konsumen (APPK) tidak sedang dalam proses atau "
+    "pernah diputus oleh lembaga arbitrase atau peradilan atau lembaga mediasi lainnya "
+    "termasuk lembaga alternatif penyelesaian Sengketa dan belum pernah difasilitasi oleh OJK."
+)
+TEKS_PENUTUP = "Demikian surat pernyataan ini dibuat dengan sadar dan tanpa paksaan dari pihak manapun."
+
 # --- INPUT DATA ---
-kronologis, no_hp, email, isi_pernyataan = "", "", "", ""
+kronologis, no_hp, email, isi_pernyataan, pt_dituju = "", "", "", "", ""
 tipe_surat = st.selectbox("Pilih Jenis Layanan:", ["Surat Pengaduan", "Surat Pernyataan"])
 nama = st.text_input("Nama Lengkap")
 nik = st.text_input("NIK / Nomor Identitas")
@@ -47,69 +55,52 @@ alamat = st.text_area("Alamat")
 if tipe_surat == "Surat Pengaduan":
     no_hp = st.text_input("No. HP")
     email = st.text_input("Email")
+    kronologis = st.text_area("Tuliskan kronologis permasalahan:")
 elif tipe_surat == "Surat Pernyataan":
     pt_dituju = st.text_input("Nama PT yang Dituju")
-   
+    isi_pernyataan = st.text_area("Tuliskan permasalahan yang diajukan:")
 
 kota_ttd = st.text_input("Kota", value="Jember")
 tanggal_ttd = st.date_input("Tanggal")
 
-TEKS_PERNYATAAN = (
-    "menyatakan dengan sesungguhnya bahwa permasalahan yang saya ajukan melalui "
-    "Aplikasi Portal Perlindungan Konsumen (APPK) tidak sedang dalam proses atau "
-    "pernah diputus oleh lembaga arbitrase atau peradilan atau lembaga mediasi lainnya "
-    "termasuk lembaga alternatif penyelesaian Sengketa dan belum pernah difasilitasi oleh OJK."
-)
-TEKS_PENUTUP = "Demikian surat pernyataan ini dibuat dengan sadar dan tanpa paksaan dari pihak manapun."
-
-# --- GENERATOR PDF ---
-def buat_pdf(tipe_surat):
+# --- BUAT PDF ---
+def buat_pdf():
     pdf = FPDF()
     pdf.add_page()
     pdf.set_margins(20, 20, 20)
+    pdf.set_font("Arial", size=12)
 
-    if tipe_surat == "Surat Pengaduan":
-        # Kepada Yth
-        pdf.set_font("Arial", size=12)
+    if tipe_surat == "Surat Pernyataan":
         pdf.cell(0, 8, txt="Kepada Yth.", ln=True)
         pdf.cell(0, 8, txt=bersihkan_teks(pt_dituju), ln=True)
         pdf.cell(0, 8, txt="di Tempat", ln=True)
         pdf.ln(8)
-
-        # Judul
         pdf.set_font("Arial", 'B', 14)
         pdf.cell(0, 10, txt="SURAT PERNYATAAN", ln=True, align='C')
-        pdf.ln(8)
-
-        # Pembuka
+        pdf.ln(6)
         pdf.set_font("Arial", size=12)
         pdf.cell(0, 8, txt="Yang bertanda tangan di bawah ini:", ln=True)
-        pdf.ln(2)
         cetak_baris(pdf, "Nama", bersihkan_teks(nama))
         cetak_baris(pdf, "NIK", bersihkan_teks(nik))
         cetak_baris(pdf, "Alamat", bersihkan_teks(alamat))
         pdf.ln(6)
-
-        # Isi pernyataan
         pdf.multi_cell(0, 8, txt=bersihkan_teks(TEKS_PERNYATAAN))
         pdf.ln(4)
-
-        # Permasalahan tambahan
         if isi_pernyataan:
             pdf.multi_cell(0, 8, txt=bersihkan_teks(isi_pernyataan))
             pdf.ln(4)
-
-        # Penutup (paragraf baru)
         pdf.multi_cell(0, 8, txt=bersihkan_teks(TEKS_PENUTUP))
 
     else:
-        pdf.set_font("Arial", 'B', 16)
+        pdf.cell(0, 8, txt="Kepada Yth.", ln=True)
+        pdf.cell(0, 8, txt=bersihkan_teks(pt_dituju), ln=True)
+        pdf.cell(0, 8, txt="di Tempat", ln=True)
+        pdf.ln(8)
+        pdf.set_font("Arial", 'B', 14)
         pdf.cell(0, 10, txt="SURAT PENGADUAN", ln=True, align='C')
-        pdf.set_fill_color(178, 34, 34)
-        pdf.cell(0, 1, "", ln=True, fill=True)
-        pdf.ln(10)
+        pdf.ln(6)
         pdf.set_font("Arial", size=12)
-        pdf.cell(0, 8, txt="Saya yang bertanda tangan di bawah ini:", ln=True)
+        pdf.cell(0, 8, txt="Yang bertanda tangan di bawah ini:", ln=True)
         cetak_baris(pdf, "Nama", bersihkan_teks(nama))
         cetak_baris(pdf, "NIK", bersihkan_teks(nik))
         cetak_baris(pdf, "Alamat", bersihkan_teks(alamat))
@@ -119,7 +110,6 @@ def buat_pdf(tipe_surat):
         pdf.cell(0, 8, txt="Kronologis permasalahan:", ln=True)
         pdf.multi_cell(0, 8, txt=bersihkan_teks(kronologis))
 
-    # Tanda tangan
     pdf.ln(20)
     pdf.cell(110)
     pdf.cell(0, 8, txt=bersihkan_teks(f"{kota_ttd}, {tanggal_ttd.strftime('%d %B %Y')}"), ln=True)
@@ -131,55 +121,53 @@ def buat_pdf(tipe_surat):
     with open("surat_hasil.pdf", "rb") as f:
         return f.read()
 
-# --- GENERATOR WORD ---
-def buat_word(tipe_surat):
+# --- BUAT WORD ---
+def buat_word():
     doc = Document()
 
     if tipe_surat == "Surat Pernyataan":
-        # Kepada Yth
         doc.add_paragraph("Kepada Yth.")
         doc.add_paragraph(pt_dituju)
         doc.add_paragraph("di Tempat")
         doc.add_paragraph("")
-
-        # Judul
         judul = doc.add_paragraph("SURAT PERNYATAAN")
-        judul.alignment = 1  # center
+        judul.alignment = 1
         judul.runs[0].bold = True
         judul.runs[0].font.size = Pt(14)
         doc.add_paragraph("")
-
-        # Pembuka
         doc.add_paragraph("Yang bertanda tangan di bawah ini:")
-        doc.add_paragraph(f"Nama               : {nama}")
-        doc.add_paragraph(f"NIK                    : {nik}")
-        doc.add_paragraph(f"Alamat             : {alamat}")
+        doc.add_paragraph(f"Nama      : {nama}")
+        doc.add_paragraph(f"NIK           : {nik}")
+        doc.add_paragraph(f"Alamat    : {alamat}")
         doc.add_paragraph("")
-
-        # Isi pernyataan
         doc.add_paragraph(TEKS_PERNYATAAN)
         if isi_pernyataan:
             doc.add_paragraph(isi_pernyataan)
-
-        # Penutup paragraf baru
         doc.add_paragraph(TEKS_PENUTUP)
 
     else:
-        doc.add_heading("SURAT PENGADUAN", level=1)
-        doc.add_paragraph("Saya yang bertanda tangan di bawah ini:")
-        doc.add_paragraph(f"Nama       : {nama}")
-        doc.add_paragraph(f"NIK            : {nik}")
-        doc.add_paragraph(f"Alamat     : {alamat}")
-        doc.add_paragraph(f"No. HP    : {no_hp}")
-        doc.add_paragraph(f"Email        : {email}")
+        doc.add_paragraph("Kepada Yth.")
+        doc.add_paragraph(pt_dituju)
+        doc.add_paragraph("di Tempat")
+        doc.add_paragraph("")
+        judul = doc.add_paragraph("SURAT PENGADUAN")
+        judul.alignment = 1
+        judul.runs[0].bold = True
+        judul.runs[0].font.size = Pt(14)
+        doc.add_paragraph("")
+        doc.add_paragraph("Yang bertanda tangan di bawah ini:")
+        doc.add_paragraph(f"Nama      : {nama}")
+        doc.add_paragraph(f"NIK           : {nik}")
+        doc.add_paragraph(f"Alamat    : {alamat}")
+        doc.add_paragraph(f"No. HP   : {no_hp}")
+        doc.add_paragraph(f"Email       : {email}")
         doc.add_paragraph("")
         doc.add_paragraph("Kronologis permasalahan:")
         doc.add_paragraph(kronologis)
 
-    # Tanda tangan
     doc.add_paragraph("")
     doc.add_paragraph("")
-    ttd = doc.add_paragraph(f"                                                  {kota_ttd}, {tanggal_ttd.strftime('%d %B %Y')}")
+    doc.add_paragraph(f"                                                  {kota_ttd}, {tanggal_ttd.strftime('%d %B %Y')}")
     doc.add_paragraph("")
     doc.add_paragraph("")
     doc.add_paragraph(f"                                                  ({nama})")
@@ -189,14 +177,13 @@ def buat_word(tipe_surat):
     buffer.seek(0)
     return buffer
 
-# --- TOMBOL PROSES ---
+# --- TOMBOL ---
 if st.button("PROSES & CETAK SURAT"):
     if len(nik) != 16 or not nik.isdigit():
         st.error("⚠️ NIK harus berupa 16 digit angka!")
     else:
-        pdf_bytes = buat_pdf(tipe_surat)
-        word_buffer = buat_word(tipe_surat)
-
+        pdf_bytes = buat_pdf()
+        word_buffer = buat_word()
         col_pdf, col_word = st.columns(2)
         with col_pdf:
             st.download_button("📄 Download PDF", pdf_bytes, file_name="surat_hasil.pdf")

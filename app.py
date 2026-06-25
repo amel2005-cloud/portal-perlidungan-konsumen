@@ -83,14 +83,14 @@ def buat_pdf():
         pdf.multi_cell(0, 8, txt=bersihkan_teks(TEKS_PENUTUP))
 
     else:
-        pdf.cell(0, 8, txt="Kepada Yth.", ln=True)
-        pdf.cell(0, 8, txt=bersihkan_teks(pt_dituju), ln=True)
-        pdf.cell(0, 8, txt="di Tempat", ln=True)
-        pdf.ln(8)
         pdf.set_font("Arial", 'B', 14)
         pdf.cell(0, 10, txt="SURAT PENGADUAN", ln=True, align='C')
         pdf.ln(6)
         pdf.set_font("Arial", size=12)
+        pdf.cell(0, 8, txt="Kepada Yth.", ln=True)
+        pdf.cell(0, 8, txt=bersihkan_teks(pt_dituju), ln=True)
+        pdf.cell(0, 8, txt="di Tempat", ln=True)
+        pdf.ln(8)
         pdf.cell(0, 8, txt="Yang bertanda tangan di bawah ini:", ln=True)
         cetak_baris(pdf, "Nama", bersihkan_teks(nama))
         cetak_baris(pdf, "NIK", bersihkan_teks(nik))
@@ -132,14 +132,14 @@ def buat_word():
         doc.add_paragraph(TEKS_PENUTUP)
 
     else:
-        doc.add_paragraph("Kepada Yth.")
-        doc.add_paragraph(pt_dituju)
-        doc.add_paragraph("di Tempat")
-        doc.add_paragraph("")
         judul = doc.add_paragraph("SURAT PENGADUAN")
         judul.alignment = 1
         judul.runs[0].bold = True
         judul.runs[0].font.size = Pt(14)
+        doc.add_paragraph("")
+        doc.add_paragraph("Kepada Yth.")
+        doc.add_paragraph(pt_dituju)
+        doc.add_paragraph("di Tempat")
         doc.add_paragraph("")
         doc.add_paragraph("Yang bertanda tangan di bawah ini:")
         doc.add_paragraph(f"Nama      : {nama}")

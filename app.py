@@ -68,7 +68,7 @@ def buat_pdf(tipe_surat):
     pdf.add_page()
     pdf.set_margins(20, 20, 20)
 
-    if tipe_surat == "Surat Pernyataan":
+    if tipe_surat == "Surat Pengaduan":
         # Kepada Yth
         pdf.set_font("Arial", size=12)
         pdf.cell(0, 8, txt="Kepada Yth.", ln=True)

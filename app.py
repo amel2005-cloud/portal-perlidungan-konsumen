@@ -23,7 +23,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- HEADER PORTAL ---
+
 col1, col2, col3 = st.columns([2, 1, 2])
 with col2:
     st.image("image.png", width=130)
@@ -31,13 +31,13 @@ st.title("PORTAL PERLINDUNGAN KONSUMEN")
 st.markdown("---")
 st.subheader("Formulir Layanan Surat Resmi OJK JEMBER")
 
-# --- FUNGSI TATA LETAK ---
+
 def cetak_baris(pdf, label, nilai):
     pdf.cell(40, 8, txt=label, ln=0)
     pdf.cell(5, 8, txt=":", ln=0)
     pdf.cell(0, 8, txt=nilai, ln=1)
 
-# --- FUNGSI PEMBERSIH TEKS (biar PDF gak error karena emoji/karakter aneh) ---
+
 def bersihkan_teks(teks):
     if not teks:
         return ""
@@ -62,7 +62,7 @@ elif tipe_surat == "Surat Pernyataan":
 kota_ttd = st.text_input("Kota", value="Jember")
 tanggal_ttd = st.date_input("Tanggal")
 
-# --- GENERATOR PDF ---
+# pdf
 if st.button("PROSES & CETAK SURAT"):
     if len(nik) != 16 or not nik.isdigit():
         st.error("⚠️ NIK harus berupa 16 digit angka!")
@@ -70,7 +70,7 @@ if st.button("PROSES & CETAK SURAT"):
         pdf = FPDF()
         pdf.add_page()
         
-        # Elemen Header PDF
+    
         pdf.set_font("Arial", 'B', 16)
         pdf.cell(0, 10, txt=tipe_surat.upper(), ln=True, align='C')
         pdf.set_fill_color(178, 34, 34) # Warna Merah OJK
@@ -90,8 +90,7 @@ if st.button("PROSES & CETAK SURAT"):
             pdf.cell(0, 8, txt="Kronologis permasalahan:", ln=True)
             pdf.multi_cell(0, 8, txt=bersihkan_teks(kronologis))
         else:
-            pdf.multi_cell(0, 8, txt="menyatakan dengan ini sesungguhnya bahwa permasalahan yang saya ajukan melalui Aplikasi Portal Perlindungan Konsumen (APPK) tidak sedang dalam proses atau pernah diputus oleh lembaga arbitrase atau peradilan atau lembaga mediasi lainnya termasuk lembaga alternatif penyelesaian Sengketa dan belum pernah difasilitasi oleh OJK.
-Demikian surat pernyataan ini dibuat dengan sadar dan tanpa paksaan dari pihak manapun.:")
+            pdf.multi_cell(0, 8, txt="Sehubungan dengan pengajuan penyelesaian pengaduan melalui Aplikasi Portal Perlindungan Konsumen (APPK), dengan ini saya:")
             pdf.ln(2)
             cetak_baris(pdf, "Nama", bersihkan_teks(nama))
             cetak_baris(pdf, "Nomor Identitas", bersihkan_teks(nik))

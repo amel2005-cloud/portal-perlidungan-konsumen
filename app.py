@@ -49,7 +49,7 @@ if tipe_surat == "Surat Pengaduan":
     email = st.text_input("Email")
 elif tipe_surat == "Surat Pernyataan":
     pt_dituju = st.text_input("Nama PT yang Dituju")
-    isi_pernyataan = st.text_area("Tuliskan permasalahan yang diajukan:")
+   
 
 kota_ttd = st.text_input("Kota", value="Jember")
 tanggal_ttd = st.date_input("Tanggal")

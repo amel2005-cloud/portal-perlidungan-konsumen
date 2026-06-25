@@ -87,10 +87,8 @@ def buat_pdf():
         pdf.cell(0, 10, txt="SURAT PENGADUAN", ln=True, align='C')
         pdf.ln(6)
         pdf.set_font("Arial", size=12)
-        pdf.cell(0, 8, txt="Kepada Yth.", ln=True)
-        pdf.cell(0, 8, txt=bersihkan_teks(pt_dituju), ln=True)
-        pdf.cell(0, 8, txt="di Tempat", ln=True)
-        pdf.ln(8)
+        pdf.cell(0, 8, txt=bersihkan_teks(f"Nama PT yang dituju : {pt_dituju}"), ln=True)
+        pdf.ln(4)
         pdf.cell(0, 8, txt="Yang bertanda tangan di bawah ini:", ln=True)
         cetak_baris(pdf, "Nama", bersihkan_teks(nama))
         cetak_baris(pdf, "NIK", bersihkan_teks(nik))
@@ -121,7 +119,6 @@ def buat_word():
         judul.alignment = 1
         judul.runs[0].bold = True
         judul.runs[0].font.size = Pt(14)
-        doc.add_paragraph(f"Nama PT yang dituju      : {nama pt yang dituju}")
         doc.add_paragraph("")
         doc.add_paragraph("Yang bertanda tangan di bawah ini:")
         doc.add_paragraph(f"Nama      : {nama}")
@@ -138,9 +135,7 @@ def buat_word():
         judul.runs[0].bold = True
         judul.runs[0].font.size = Pt(14)
         doc.add_paragraph("")
-        doc.add_paragraph("Kepada Yth.")
-        doc.add_paragraph(pt_dituju)
-        doc.add_paragraph("di Tempat")
+        doc.add_paragraph(f"Nama PT yang dituju : {pt_dituju}")
         doc.add_paragraph("")
         doc.add_paragraph("Yang bertanda tangan di bawah ini:")
         doc.add_paragraph(f"Nama      : {nama}")

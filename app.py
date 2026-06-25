@@ -121,6 +121,7 @@ def buat_word():
         judul.alignment = 1
         judul.runs[0].bold = True
         judul.runs[0].font.size = Pt(14)
+        doc.add_paragraph(f"Nama PT yang dituju      : {nama pt yang dituju}")
         doc.add_paragraph("")
         doc.add_paragraph("Yang bertanda tangan di bawah ini:")
         doc.add_paragraph(f"Nama      : {nama}")

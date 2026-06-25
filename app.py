@@ -44,7 +44,7 @@ TEKS_PERNYATAAN = (
 TEKS_PENUTUP = "Demikian surat pernyataan ini dibuat dengan sadar dan tanpa paksaan dari pihak manapun."
 
 # --- INPUT DATA ---
-kronologis, no_hp, email, isi_pernyataan, pt_dituju = "", "", "", "", ""
+kronologis, no_hp, email, pt_dituju = "", "", "", ""
 tipe_surat = st.selectbox("Pilih Jenis Layanan:", ["Surat Pengaduan", "Surat Pernyataan"])
 nama = st.text_input("Nama Lengkap")
 nik = st.text_input("NIK / Nomor Identitas")
@@ -53,12 +53,10 @@ if nik and (len(nik) != 16 or not nik.isdigit()):
 alamat = st.text_area("Alamat")
 
 if tipe_surat == "Surat Pengaduan":
+    pt_dituju = st.text_input("Nama PT yang Dituju")
     no_hp = st.text_input("No. HP")
     email = st.text_input("Email")
     kronologis = st.text_area("Tuliskan kronologis permasalahan:")
-elif tipe_surat == "Surat Pernyataan":
-    pt_dituju = st.text_input("Nama PT yang Dituju")
-    isi_pernyataan = st.text_area("Tuliskan permasalahan yang diajukan:")
 
 kota_ttd = st.text_input("Kota", value="Jember")
 tanggal_ttd = st.date_input("Tanggal")
@@ -71,10 +69,6 @@ def buat_pdf():
     pdf.set_font("Arial", size=12)
 
     if tipe_surat == "Surat Pernyataan":
-        pdf.cell(0, 8, txt="Kepada Yth.", ln=True)
-        pdf.cell(0, 8, txt=bersihkan_teks(pt_dituju), ln=True)
-        pdf.cell(0, 8, txt="di Tempat", ln=True)
-        pdf.ln(8)
         pdf.set_font("Arial", 'B', 14)
         pdf.cell(0, 10, txt="SURAT PERNYATAAN", ln=True, align='C')
         pdf.ln(6)
@@ -85,10 +79,7 @@ def buat_pdf():
         cetak_baris(pdf, "Alamat", bersihkan_teks(alamat))
         pdf.ln(6)
         pdf.multi_cell(0, 8, txt=bersihkan_teks(TEKS_PERNYATAAN))
-        pdf.ln(4)
-        if isi_pernyataan:
-            pdf.multi_cell(0, 8, txt=bersihkan_teks(isi_pernyataan))
-            pdf.ln(4)
+        pdf.ln(6)
         pdf.multi_cell(0, 8, txt=bersihkan_teks(TEKS_PENUTUP))
 
     else:
@@ -126,10 +117,6 @@ def buat_word():
     doc = Document()
 
     if tipe_surat == "Surat Pernyataan":
-        doc.add_paragraph("Kepada Yth.")
-        doc.add_paragraph(pt_dituju)
-        doc.add_paragraph("di Tempat")
-        doc.add_paragraph("")
         judul = doc.add_paragraph("SURAT PERNYATAAN")
         judul.alignment = 1
         judul.runs[0].bold = True
@@ -141,8 +128,7 @@ def buat_word():
         doc.add_paragraph(f"Alamat    : {alamat}")
         doc.add_paragraph("")
         doc.add_paragraph(TEKS_PERNYATAAN)
-        if isi_pernyataan:
-            doc.add_paragraph(isi_pernyataan)
+        doc.add_paragraph("")
         doc.add_paragraph(TEKS_PENUTUP)
 
     else:

@@ -90,7 +90,8 @@ if st.button("PROSES & CETAK SURAT"):
             pdf.cell(0, 8, txt="Kronologis permasalahan:", ln=True)
             pdf.multi_cell(0, 8, txt=bersihkan_teks(kronologis))
         else:
-            pdf.multi_cell(0, 8, txt="Sehubungan dengan pengajuan penyelesaian pengaduan melalui Aplikasi Portal Perlindungan Konsumen (APPK), dengan ini saya:")
+            pdf.multi_cell(0, 8, txt="menyatakan dengan ini sesungguhnya bahwa permasalahan yang saya ajukan melalui Aplikasi Portal Perlindungan Konsumen (APPK) tidak sedang dalam proses atau pernah diputus oleh lembaga arbitrase atau peradilan atau lembaga mediasi lainnya termasuk lembaga alternatif penyelesaian Sengketa dan belum pernah difasilitasi oleh OJK.
+Demikian surat pernyataan ini dibuat dengan sadar dan tanpa paksaan dari pihak manapun.:")
             pdf.ln(2)
             cetak_baris(pdf, "Nama", bersihkan_teks(nama))
             cetak_baris(pdf, "Nomor Identitas", bersihkan_teks(nik))

@@ -47,7 +47,6 @@ alamat = st.text_area("Alamat")
 if tipe_surat == "Surat Pengaduan":
     no_hp = st.text_input("No. HP")
     email = st.text_input("Email")
-    kronologis = st.text_area("Tuliskan kronologis permasalahan:")
 elif tipe_surat == "Surat Pernyataan":
     pt_dituju = st.text_input("Nama PT yang Dituju")
     isi_pernyataan = st.text_area("Tuliskan permasalahan yang diajukan:")

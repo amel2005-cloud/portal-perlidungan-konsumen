@@ -4,391 +4,323 @@ from docx import Document
 from docx.shared import Pt
 from io import BytesIO
 
-# ===================== CSS & HERO HEADER =====================
+# ===================== INISIALISASI SESSION STATE =====================
+if "halaman" not in st.session_state:
+    st.session_state.halaman = "pembukaan"
+
+# ===================== CSS GLOBAL =====================
 st.markdown("""
+<style>
+.stApp {
+    background-image: radial-gradient(#d1d1d1 0.5px, transparent 0.5px);
+    background-size: 20px 20px;
+    background-color: #f8f9fa;
+}
+.stTextInput, .stTextArea, .stSelectbox { border-left: 5px solid #b22222; }
+div.stButton > button:first-child {
+    background-color: #b22222; color: white; border: none;
+    font-weight: bold; width: 100%;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# ===================== HALAMAN PEMBUKAAN =====================
+if st.session_state.halaman == "pembukaan":
+    st.markdown("""
     <style>
-    .stApp { 
-        background-image: radial-gradient(#d1d1d1 0.5px, transparent 0.5px);
-        background-size: 20px 20px;
-        background-color: #f8f9fa;
-    }
-    .stTextInput, .stTextArea, .stSelectbox { border-left: 5px solid #b22222; }
-    div.stButton > button:first-child { 
-        background-color: #b22222; color: white; border: none; font-weight: bold; width: 100%;
-    }
+    .stApp { background: #8B0000 !important; background-image: none !important; }
 
-    /* ---- HERO BANNER ---- */
-    .hero-banner {
-        background: linear-gradient(135deg, #8B0000 0%, #b22222 50%, #cc3333 100%);
-        border-radius: 12px;
-        margin-bottom: 8px;
+    .splash-wrap {
+        min-height: 88vh;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        text-align: center;
+        padding: 40px 24px;
         position: relative;
-        overflow: hidden;
+        font-family: Arial, sans-serif;
     }
-    .hero-banner::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
+    .splash-wrap::before {
+        content:'';
+        position:fixed; inset:0;
         background: repeating-linear-gradient(
-            45deg, transparent, transparent 20px,
-            rgba(255,255,255,0.03) 20px, rgba(255,255,255,0.03) 40px
+            45deg, transparent, transparent 30px,
+            rgba(255,255,255,0.02) 30px, rgba(255,255,255,0.02) 60px
         );
+        pointer-events:none;
     }
-    .hero-banner::after {
-        content: '';
-        position: absolute;
-        bottom: 0; left: 0; right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #FFD700, #FFA500, #FFD700);
+    .gold-top {
+        position:fixed; top:0; left:0; right:0; height:5px;
+        background: linear-gradient(90deg, #b8860b, #FFD700, #b8860b);
+        z-index:999;
     }
-    .top-bar {
-        background: rgba(0,0,0,0.25);
-        padding: 7px 28px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        font-size: 11.5px;
-        color: rgba(255,255,255,0.7);
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-        font-family: Arial, sans-serif;
+    .gold-bot {
+        position:fixed; bottom:0; left:0; right:0; height:5px;
+        background: linear-gradient(90deg, #b8860b, #FFD700, #b8860b);
+        z-index:999;
     }
-    .hero-content {
-        padding: 28px 32px 32px;
-        display: flex;
-        align-items: center;
-        gap: 28px;
-        position: relative;
-        z-index: 1;
-        flex-wrap: wrap;
+
+    .logo-ring {
+        width:110px; height:110px; border-radius:50%;
+        background:white; border:3px solid #FFD700;
+        display:flex; align-items:center; justify-content:center;
+        margin:0 auto 28px;
+        animation: popIn 0.6s ease 0.2s both;
     }
-    .logo-circle {
-        width: 88px; height: 88px;
-        border-radius: 50%;
-        background: white;
-        display: flex; align-items: center; justify-content: center;
-        flex-shrink: 0;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        border: 3px solid rgba(255,215,0,0.6);
-        font-size: 13px; font-weight: 900; color: #8B0000;
-        text-align: center; line-height: 1.3; letter-spacing: 1px;
-        font-family: Arial, sans-serif;
+    .logo-ring span {
+        font-size:16px; font-weight:900; color:#8B0000;
+        line-height:1.25; letter-spacing:1px;
     }
-    .hero-text { flex: 1; min-width: 200px; }
+
+    @keyframes popIn {
+        from { transform:scale(0.5); opacity:0; }
+        to   { transform:scale(1);   opacity:1; }
+    }
+
     .inst-label {
-        font-size: 10.5px; color: rgba(255,255,255,0.6);
-        letter-spacing: 2.5px; text-transform: uppercase;
-        margin-bottom: 6px; font-family: Arial, sans-serif;
+        font-size:11px; letter-spacing:3px; text-transform:uppercase;
+        color:rgba(255,255,255,0.5); margin-bottom:8px;
+        animation: fadeUp 0.5s ease 0.7s both;
     }
-    .hero-title {
-        font-size: 26px; font-weight: 900; color: white;
-        line-height: 1.2; margin-bottom: 4px;
-        text-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        font-family: Arial, sans-serif;
+    .splash-title {
+        font-size:32px; font-weight:900; color:white;
+        line-height:1.2; margin-bottom:6px;
+        text-shadow:0 2px 12px rgba(0,0,0,0.4);
+        animation: fadeUp 0.5s ease 0.9s both;
     }
-    .hero-subtitle {
-        font-size: 13.5px; color: rgba(255,255,255,0.78);
-        margin-bottom: 14px; font-style: italic;
-        font-family: Arial, sans-serif;
+    .splash-sub {
+        font-size:14px; color:rgba(255,255,255,0.7);
+        font-style:italic; margin-bottom:36px;
+        animation: fadeUp 0.5s ease 1.1s both;
     }
-    .hero-badges { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .typed-container {
+        min-height: 44px;
+        display:flex; align-items:center; justify-content:center;
+    }
+    .typed-text {
+        font-size:32px; font-weight:900; color:white;
+        text-shadow:0 2px 12px rgba(0,0,0,0.4);
+        overflow:hidden; white-space:nowrap;
+        border-right:3px solid #FFD700;
+        width:0;
+        animation:
+            typing 1.8s steps(30,end) 1.2s forwards,
+            blink 0.7s step-end infinite 1.2s;
+    }
+    @keyframes typing {
+        from { width:0 }
+        to   { width:100% }
+    }
+    @keyframes blink {
+        0%,100%{ border-color:#FFD700 }
+        50%    { border-color:transparent }
+    }
+
+    .sub-anim {
+        font-size:14px; color:rgba(255,255,255,0.7);
+        font-style:italic; margin-bottom:36px;
+        opacity:0;
+        animation: fadeUp 0.6s ease 3.2s forwards;
+    }
+    .badge-row {
+        display:flex; gap:10px; flex-wrap:wrap; justify-content:center;
+        margin-bottom:36px;
+        opacity:0; animation: fadeUp 0.5s ease 3.5s forwards;
+    }
     .badge {
-        background: rgba(255,255,255,0.14);
-        border: 1px solid rgba(255,215,0,0.35);
-        color: rgba(255,255,255,0.88);
-        font-size: 11px; padding: 5px 13px;
-        border-radius: 20px;
-        display: inline-flex; align-items: center; gap: 6px;
-        font-family: Arial, sans-serif;
+        background:rgba(255,255,255,0.1);
+        border:1px solid rgba(255,215,0,0.35);
+        color:rgba(255,255,255,0.85);
+        font-size:11.5px; padding:5px 14px; border-radius:20px;
+        display:inline-flex; align-items:center; gap:6px;
     }
-    .badge-dot { display:inline-block; width:6px; height:6px; border-radius:50%; background:#FFD700; }
-    .ojk-badge {
-        background: rgba(255,255,255,0.1);
-        border: 1px solid rgba(255,215,0,0.45);
-        border-radius: 10px; padding: 14px 18px;
-        color: white; text-align: right;
-        font-family: Arial, sans-serif;
-    }
-    .ojk-badge-title { font-size: 9.5px; color: rgba(255,255,255,0.55); letter-spacing: 2px; text-transform: uppercase; }
-    .ojk-badge-name { font-size: 14px; font-weight: 700; margin-top: 4px; color: #FFD700; }
+    .badge-dot { width:6px;height:6px;border-radius:50%;background:#FFD700;display:inline-block; }
 
-    /* ---- NAV TABS ---- */
-    .nav-tabs {
-        background: rgba(0,0,0,0.35);
-        display: flex; padding: 0 32px;
-        border-top: 1px solid rgba(255,255,255,0.1);
-        position: relative; z-index: 1;
-        border-bottom: 3px solid #FFD700;
+    .appk-card {
+        background:rgba(255,255,255,0.1);
+        border:1px solid rgba(255,215,0,0.45);
+        border-radius:12px; padding:20px 28px;
+        max-width:420px; margin:0 auto 32px;
+        opacity:0; animation: fadeUp 0.5s ease 3.8s forwards;
+        font-family:Arial,sans-serif;
     }
-    .nav-tab {
-        padding: 11px 18px;
-        color: rgba(255,255,255,0.65);
-        font-size: 12px; cursor: default;
-        border-bottom: 3px solid transparent;
-        margin-bottom: -3px;
-        letter-spacing: 0.5px;
-        font-weight: 700; text-transform: uppercase;
-        font-family: Arial, sans-serif;
+    .appk-card-title {
+        font-size:10px; letter-spacing:2px; text-transform:uppercase;
+        color:rgba(255,255,255,0.5); margin-bottom:6px;
     }
-    .nav-tab.active { color: white; border-bottom-color: #FFD700; background: rgba(255,255,255,0.05); }
+    .appk-card-text {
+        font-size:14px; color:rgba(255,255,255,0.85); margin-bottom:14px; line-height:1.5;
+    }
+    .appk-btn {
+        display:inline-block;
+        background:#FFD700; color:#5a0000;
+        font-weight:800; font-size:13px;
+        padding:10px 22px; border-radius:7px;
+        text-decoration:none; letter-spacing:0.3px;
+        transition:background 0.2s;
+    }
+    .appk-btn:hover { background:#ffe033; }
 
-    /* ---- INFO RIBBON ---- */
-    .info-ribbon {
-        background: #fffbf0;
-        border-left: 4px solid #FFD700;
-        padding: 12px 18px;
-        display: flex; align-items: flex-start; gap: 10px;
-        border-radius: 0 8px 8px 0;
-        font-size: 12.5px; color: #555;
-        border: 1px solid #f0e0a0; border-left: 4px solid #FFD700;
-        margin-bottom: 4px;
-        font-family: Arial, sans-serif; line-height: 1.55;
+    @keyframes fadeUp {
+        from { transform:translateY(12px); opacity:0; }
+        to   { transform:translateY(0);    opacity:1; }
     }
-
-    /* ---- STAT CARDS ---- */
-    .stat-row { display: flex; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
-    .stat-card {
-        background: white; border: 1px solid #e8e8e8;
-        border-radius: 8px; padding: 14px 18px;
-        flex: 1; min-width: 130px;
-        border-top: 3px solid #b22222;
-        font-family: Arial, sans-serif;
-    }
-    .stat-label { font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 1px; }
-    .stat-value { font-size: 20px; font-weight: 700; color: #b22222; margin-top: 4px; }
-    .stat-sub { font-size: 10.5px; color: #777; margin-top: 2px; }
-    .stat-active { color: #27ae60 !important; }
-
-    /* ---- FORM CARD ---- */
-    .form-card-header {
-        background: #f8f0f0; border-bottom: 2px solid #b22222;
-        padding: 14px 20px; display: flex; align-items: center; gap: 12px;
-        border-radius: 8px 8px 0 0;
-        font-family: Arial, sans-serif;
-    }
-    .form-card-icon {
-        width: 34px; height: 34px; border-radius: 7px;
-        background: #b22222; display: flex; align-items: center;
-        justify-content: center; color: white; font-size: 16px;
-        flex-shrink: 0;
-    }
-    .form-card-title { font-size: 13.5px; color: #7a0000; font-weight: 700; }
-    .form-card-sub { font-size: 11px; color: #999; margin-top: 2px; }
     </style>
 
-    <!-- HERO BANNER -->
-    <div class="hero-banner">
-      <div class="top-bar">
-        <div>🏛️ Pemerintah Republik Indonesia &nbsp;|&nbsp; 📍 Kantor OJK Jember</div>
-        <div>☎ 157 &nbsp;·&nbsp; Hotline Konsumen OJK</div>
-      </div>
-      <div class="hero-content">
-        <div class="logo-circle">OJK<br>JEMBER</div>
-        <div class="hero-text">
-          <div class="inst-label">Otoritas Jasa Keuangan · Kantor Regional</div>
-          <div class="hero-title">Portal Perlindungan Konsumen</div>
-          <div class="hero-subtitle">Layanan Surat Resmi Terintegrasi — OJK Jember</div>
-          <div class="hero-badges">
-            <span class="badge"><span class="badge-dot"></span> Resmi &amp; Terpercaya</span>
-            <span class="badge"><span class="badge-dot"></span> Pengaduan Terverifikasi</span>
-            <span class="badge"><span class="badge-dot"></span> Layanan Gratis</span>
-          </div>
-        </div>
-        <div class="ojk-badge">
-          <div class="ojk-badge-title">Didukung oleh</div>
-          <div class="ojk-badge-name">Pemkab Jember</div>
-          <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:4px;">Layanan Terintegrasi 2026</div>
-        </div>
-      </div>
-      <div class="nav-tabs">
-        <div class="nav-tab active">📄 Buat Surat</div>
-        <div class="nav-tab">ℹ️ Panduan</div>
-        <div class="nav-tab">📞 Kontak</div>
-        <div class="nav-tab">❓ FAQ</div>
-      </div>
-    </div>
-""", unsafe_allow_html=True)
+    <div class="gold-top"></div>
+    <div class="gold-bot"></div>
 
-# ---- STAT CARDS ----
-st.markdown("""
-    <div class="stat-row">
-      <div class="stat-card">
-        <div class="stat-label">Layanan</div>
-        <div class="stat-value">2 Jenis</div>
-        <div class="stat-sub">Pengaduan &amp; Pernyataan</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Format</div>
-        <div class="stat-value">PDF + DOCX</div>
-        <div class="stat-sub">Siap unduh &amp; cetak</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Status</div>
-        <div class="stat-value stat-active">● Aktif</div>
-        <div class="stat-sub">Layanan tersedia 24/7</div>
-      </div>
-    </div>
-""", unsafe_allow_html=True)
+    <div class="splash-wrap">
+        <div class="logo-ring"><span>OJK<br>JEMBER</span></div>
 
-# ---- INFO RIBBON ----
-st.markdown("""
+        <div class="inst-label">Otoritas Jasa Keuangan &bull; Kantor Jember</div>
+
+        <div class="typed-container">
+            <span class="typed-text">Portal Perlindungan Konsumen</span>
+        </div>
+
+        <div class="sub-anim">Layanan Surat Resmi Terintegrasi &mdash; OJK Jember</div>
+
+        <div class="badge-row">
+            <span class="badge"><span class="badge-dot"></span>Resmi &amp; Terpercaya</span>
+            <span class="badge"><span class="badge-dot"></span>Pengaduan Terverifikasi</span>
+            <span class="badge"><span class="badge-dot"></span>Layanan Gratis</span>
+        </div>
+
+        <div class="appk-card">
+            <div class="appk-card-title">Layanan Pengaduan Online OJK</div>
+            <div class="appk-card-text">
+                Akses langsung ke <strong style="color:#FFD700;">APPK (Aplikasi Portal Perlindungan Konsumen)</strong>
+                untuk mengajukan pengaduan secara online ke OJK Pusat.
+            </div>
+            <a class="appk-btn" href="https://kontak157.ojk.go.id/appkpublicportal/" target="_blank">
+                Buka APPK OJK &#8599;
+            </a>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.button("📄 Lanjut ke Formulir Surat Resmi"):
+            st.session_state.halaman = "formulir"
+            st.rerun()
+
+    st.caption("© 2026 Otoritas Jasa Keuangan | Layanan Perlindungan Konsumen")
+
+# ===================== HALAMAN FORMULIR =====================
+elif st.session_state.halaman == "formulir":
+
+    # Header mini di atas formulir
+    st.markdown("""
+    <style>
+    .mini-header {
+        background: linear-gradient(135deg, #8B0000, #b22222);
+        border-radius: 10px;
+        padding: 16px 24px;
+        display: flex; align-items: center; gap: 16px;
+        margin-bottom: 4px;
+        border-bottom: 3px solid #FFD700;
+        font-family: Arial, sans-serif;
+    }
+    .mini-logo {
+        width:48px; height:48px; border-radius:50%; background:white;
+        border:2px solid #FFD700;
+        display:flex; align-items:center; justify-content:center;
+        font-size:10px; font-weight:900; color:#8B0000;
+        line-height:1.2; text-align:center; flex-shrink:0;
+    }
+    .mini-title { font-size:16px; font-weight:900; color:white; }
+    .mini-sub   { font-size:11px; color:rgba(255,255,255,0.65); margin-top:2px; }
+    .info-ribbon {
+        background:#fffbf0; border-left:4px solid #FFD700;
+        padding:11px 16px; border-radius:0 7px 7px 0;
+        font-size:12.5px; color:#555; margin-bottom:8px;
+        border:1px solid #f0e0a0; border-left:4px solid #FFD700;
+        font-family:Arial,sans-serif; line-height:1.55;
+    }
+    </style>
+
+    <div class="mini-header">
+        <div class="mini-logo">OJK<br>JBR</div>
+        <div>
+            <div class="mini-title">Portal Perlindungan Konsumen</div>
+            <div class="mini-sub">Formulir Layanan Surat Resmi &mdash; OJK Jember</div>
+        </div>
+    </div>
     <div class="info-ribbon">
-      ℹ️ &nbsp;<span><strong>Petunjuk Pengisian:</strong> Pastikan NIK sesuai KTP. 
-      Isi seluruh kolom dengan data yang benar dan lengkap. 
-      Surat yang dihasilkan bersifat resmi dan dapat diajukan langsung ke OJK Jember.</span>
+        &#x2139;&#xFE0F;&nbsp; <strong>Petunjuk:</strong> Pastikan NIK sesuai KTP. Isi semua kolom dengan benar.
+        Surat yang dihasilkan bersifat resmi dan dapat diajukan ke OJK Jember.
+        &nbsp;|&nbsp; <a href="https://kontak157.ojk.go.id/appkpublicportal/" target="_blank"
+        style="color:#8B0000;font-weight:700;">Pengaduan Online via APPK OJK &#8599;</a>
     </div>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
-st.markdown("<br>", unsafe_allow_html=True)
+    col_back, _ = st.columns([1, 4])
+    with col_back:
+        if st.button("← Kembali"):
+            st.session_state.halaman = "pembukaan"
+            st.rerun()
 
-# ---- FORM HEADER ----
-st.markdown("""
-    <div class="form-card-header">
-      <div class="form-card-icon">📋</div>
-      <div>
-        <div class="form-card-title">FORMULIR LAYANAN SURAT RESMI</div>
-        <div class="form-card-sub">Lengkapi data di bawah ini dengan benar untuk membuat surat resmi</div>
-      </div>
-    </div>
-""", unsafe_allow_html=True)
+    # ---- INPUT DATA ----
+    kronologis, no_hp, email, pt_dituju = "", "", "", ""
+    tipe_surat = st.selectbox("Pilih Jenis Layanan:", ["Surat Pengaduan", "Surat Pernyataan"])
+    nama   = st.text_input("Nama Lengkap")
+    nik    = st.text_input("NIK / Nomor Identitas")
+    if nik and (len(nik) != 16 or not nik.isdigit()):
+        st.warning("NIK harus 16 digit angka.")
+    alamat = st.text_area("Alamat")
 
-st.markdown("<br>", unsafe_allow_html=True)
+    if tipe_surat == "Surat Pengaduan":
+        pt_dituju  = st.text_input("Nama PT yang Dituju")
+        no_hp      = st.text_input("No. HP")
+        email      = st.text_input("Email")
+        kronologis = st.text_area("Tuliskan kronologis permasalahan:")
 
-# ===================== INPUT DATA =====================
-kronologis, no_hp, email, pt_dituju = "", "", "", ""
-tipe_surat = st.selectbox("Pilih Jenis Layanan:", ["Surat Pengaduan", "Surat Pernyataan"])
-nama = st.text_input("Nama Lengkap")
-nik = st.text_input("NIK / Nomor Identitas")
-if nik and (len(nik) != 16 or not nik.isdigit()):
-    st.warning("NIK harus 16 digit angka.")
-alamat = st.text_area("Alamat")
+    kota_ttd   = st.text_input("Kota", value="Jember")
+    tanggal_ttd = st.date_input("Tanggal")
 
-if tipe_surat == "Surat Pengaduan":
-    pt_dituju = st.text_input("Nama PT yang Dituju")
-    no_hp = st.text_input("No. HP")
-    email = st.text_input("Email")
-    kronologis = st.text_area("Tuliskan kronologis permasalahan:")
+    # ---- FUNGSI PDF & WORD ----
+    TEKS_PERNYATAAN = (
+        "menyatakan dengan sesungguhnya bahwa permasalahan yang saya ajukan melalui "
+        "Aplikasi Portal Perlindungan Konsumen (APPK) tidak sedang dalam proses atau "
+        "pernah diputus oleh lembaga arbitrase atau peradilan atau lembaga mediasi lainnya "
+        "termasuk lembaga alternatif penyelesaian Sengketa dan belum pernah difasilitasi oleh OJK."
+    )
+    TEKS_PENUTUP = "Demikian surat pernyataan ini dibuat dengan sadar dan tanpa paksaan dari pihak manapun."
 
-kota_ttd = st.text_input("Kota", value="Jember")
-tanggal_ttd = st.date_input("Tanggal")
+    def cetak_baris(pdf, label, nilai):
+        pdf.cell(40, 8, txt=label, ln=0)
+        pdf.cell(5, 8, txt=":", ln=0)
+        pdf.cell(0, 8, txt=nilai, ln=1)
 
-# ===================== FUNGSI PDF & WORD (tidak berubah) =====================
-def cetak_baris(pdf, label, nilai):
-    pdf.cell(40, 8, txt=label, ln=0)
-    pdf.cell(5, 8, txt=":", ln=0)
-    pdf.cell(0, 8, txt=nilai, ln=1)
+    def bersihkan_teks(teks):
+        if not teks: return ""
+        return teks.encode('latin-1', 'replace').decode('latin-1')
 
-def bersihkan_teks(teks):
-    if not teks:
-        return ""
-    return teks.encode('latin-1', 'replace').decode('latin-1')
-
-TEKS_PERNYATAAN = (
-    "menyatakan dengan sesungguhnya bahwa permasalahan yang saya ajukan melalui "
-    "Aplikasi Portal Perlindungan Konsumen (APPK) tidak sedang dalam proses atau "
-    "pernah diputus oleh lembaga arbitrase atau peradilan atau lembaga mediasi lainnya "
-    "termasuk lembaga alternatif penyelesaian Sengketa dan belum pernah difasilitasi oleh OJK."
-)
-TEKS_PENUTUP = "Demikian surat pernyataan ini dibuat dengan sadar dan tanpa paksaan dari pihak manapun."
-
-def buat_pdf():
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_margins(20, 20, 20)
-    pdf.set_font("Arial", size=12)
-    if tipe_surat == "Surat Pernyataan":
-        pdf.set_font("Arial", 'B', 14)
-        pdf.cell(0, 10, txt="SURAT PERNYATAAN", ln=True, align='C')
-        pdf.ln(6)
+    def buat_pdf():
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_margins(20, 20, 20)
         pdf.set_font("Arial", size=12)
-        pdf.cell(0, 8, txt="Yang bertanda tangan di bawah ini:", ln=True)
-        cetak_baris(pdf, "Nama", bersihkan_teks(nama))
-        cetak_baris(pdf, "NIK", bersihkan_teks(nik))
-        cetak_baris(pdf, "Alamat", bersihkan_teks(alamat))
-        pdf.ln(6)
-        pdf.multi_cell(0, 8, txt=bersihkan_teks(TEKS_PERNYATAAN))
-        pdf.ln(6)
-        pdf.multi_cell(0, 8, txt=bersihkan_teks(TEKS_PENUTUP))
-    else:
-        pdf.set_font("Arial", 'B', 14)
-        pdf.cell(0, 10, txt="SURAT PENGADUAN", ln=True, align='C')
-        pdf.ln(6)
-        pdf.set_font("Arial", size=12)
-        pdf.cell(0, 8, txt=bersihkan_teks(f"Nama PT yang dituju : {pt_dituju}"), ln=True)
-        pdf.ln(5)
-        pdf.cell(0, 8, txt="Yang bertanda tangan di bawah ini:", ln=True)
-        cetak_baris(pdf, "Nama", bersihkan_teks(nama))
-        cetak_baris(pdf, "NIK", bersihkan_teks(nik))
-        cetak_baris(pdf, "Alamat", bersihkan_teks(alamat))
-        cetak_baris(pdf, "No. HP", bersihkan_teks(no_hp))
-        cetak_baris(pdf, "Email", bersihkan_teks(email))
-        pdf.ln(5)
-        pdf.cell(0, 8, txt="Kronologis permasalahan:", ln=True)
-        pdf.multi_cell(0, 8, txt=bersihkan_teks(kronologis))
-    pdf.ln(20)
-    pdf.cell(110)
-    pdf.cell(0, 8, txt=bersihkan_teks(f"{kota_ttd}, {tanggal_ttd.strftime('%d %B %Y')}"), ln=True)
-    pdf.ln(20)
-    pdf.cell(110)
-    pdf.cell(0, 8, txt=bersihkan_teks(f"({nama})"), ln=True)
-    pdf.output("surat_hasil.pdf")
-    with open("surat_hasil.pdf", "rb") as f:
-        return f.read()
-
-def buat_word():
-    doc = Document()
-    if tipe_surat == "Surat Pernyataan":
-        judul = doc.add_paragraph("SURAT PERNYATAAN")
-        judul.alignment = 1
-        judul.runs[0].bold = True
-        judul.runs[0].font.size = Pt(14)
-        doc.add_paragraph("")
-        doc.add_paragraph("Yang bertanda tangan di bawah ini:")
-        doc.add_paragraph(f"Nama      : {nama}")
-        doc.add_paragraph(f"NIK           : {nik}")
-        doc.add_paragraph(f"Alamat    : {alamat}")
-        doc.add_paragraph("")
-        doc.add_paragraph(TEKS_PERNYATAAN)
-        doc.add_paragraph("")
-        doc.add_paragraph(TEKS_PENUTUP)
-    else:
-        judul = doc.add_paragraph("SURAT PENGADUAN")
-        judul.alignment = 1
-        judul.runs[0].bold = True
-        judul.runs[0].font.size = Pt(14)
-        doc.add_paragraph("")
-        doc.add_paragraph(f"Nama PT yang dituju : {pt_dituju}")
-        doc.add_paragraph("")
-        doc.add_paragraph("Yang bertanda tangan di bawah ini:")
-        doc.add_paragraph(f"Nama      : {nama}")
-        doc.add_paragraph(f"NIK           : {nik}")
-        doc.add_paragraph(f"Alamat    : {alamat}")
-        doc.add_paragraph(f"No. HP   : {no_hp}")
-        doc.add_paragraph(f"Email       : {email}")
-        doc.add_paragraph("")
-        doc.add_paragraph("Kronologis permasalahan:")
-        doc.add_paragraph(kronologis)
-    doc.add_paragraph("")
-    doc.add_paragraph("")
-    doc.add_paragraph(f"                                                  {kota_ttd}, {tanggal_ttd.strftime('%d %B %Y')}")
-    doc.add_paragraph("")
-    doc.add_paragraph("")
-    doc.add_paragraph(f"                                                  ({nama})")
-    buffer = BytesIO()
-    doc.save(buffer)
-    buffer.seek(0)
-    return buffer
-
-# ===================== TOMBOL =====================
-if st.button("PROSES & CETAK SURAT"):
-    if len(nik) != 16 or not nik.isdigit():
-        st.error("⚠️ NIK harus berupa 16 digit angka!")
-    else:
-        pdf_bytes = buat_pdf()
-        word_buffer = buat_word()
-        col_pdf, col_word = st.columns(2)
-        with col_pdf:
-            st.download_button("📄 Download PDF", pdf_bytes, file_name="surat_hasil.pdf")
-        with col_word:
-            st.download_button("📝 Download Word", word_buffer, file_name="surat_hasil.docx")
-
-st.caption("© 2026 Otoritas Jasa Keuangan & Pemerintah Kabupaten Jember | Layanan Terintegrasi")
+        if tipe_surat == "Surat Pernyataan":
+            pdf.set_font("Arial", 'B', 14)
+            pdf.cell(0, 10, txt="SURAT PERNYATAAN", ln=True, align='C')
+            pdf.ln(6)
+            pdf.set_font("Arial", size=12)
+            pdf.cell(0, 8, txt="Yang bertanda tangan di bawah ini:", ln=True)
+            cetak_baris(pdf, "Nama", bersihkan_teks(nama))
+            cetak_baris(pdf, "NIK", bersihkan_teks(nik))
+            cetak_baris(pdf, "Alamat", bersihkan_teks(alamat))
+            pdf.ln(6)
+            pdf.multi_cell(0, 8, txt=bersihkan_teks(TEKS_PERNYATAAN))
+            pdf.ln(6)
+            pdf.multi_cell(0, 8, txt=bersihkan_teks(TEKS_PENUTUP))
+        else:
+            pdf.set_font("Arial", 'B', 14)
+            pdf.cell(0, 10, txt="SURAT PENGADUAN", ln=True, align='C')
+            pdf.ln(6)
+            pdf.set_font("Arial", size=12)
+            pdf.cell(0, 8, txt=bersihkan_teks(f"Nama PT yang dituju : {pt_dituju}"), ln=True)
+            pdf.ln(5)
+            pdf.cell(0, 8, txt="Yang bertanda tangan di bawah ini:", ln=True)

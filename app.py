@@ -1,4 +1,9 @@
-import streamlit as stimport streamlit.components.v1 as componentsfrom fpdf import FPDFfrom docx import Documentfrom docx.shared import Ptfrom io import BytesIO
+import streamlit as st
+import streamlit.components.v1 as componentsfrom fpdf 
+import FPDFfrom docx 
+import Documentfrom docx.shared 
+import Ptfrom io 
+import BytesIO
 
 if "halaman" not in st.session_state:st.session_state.halaman = "pembukaan"
 

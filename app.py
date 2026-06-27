@@ -7,7 +7,7 @@ from io import BytesIO
 
 if "halaman" not in st.session_state:st.session_state.halaman = "pembukaan"
 
-===================== HALAMAN PEMBUKAAN =====================
+# ===================== HALAMAN PEMBUKAAN =====================
 
 if st.session_state.halaman == "pembukaan":
 

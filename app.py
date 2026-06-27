@@ -1,5 +1,5 @@
 import streamlit as st
-import streamlit.components.v1 as componentsfrom fpdf 
+import streamlit.components.v1 as components from fpdf 
 import FPDFfrom docx 
 import Documentfrom docx.shared 
 import Ptfrom io 

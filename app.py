@@ -4,21 +4,28 @@ from fpdf import FPDF
 from docx import Document
 from docx.shared import Pt
 from io import BytesIO
+import base64
 
 if "halaman" not in st.session_state:
     st.session_state.halaman = "pembukaan"
+
+# ===================== ENCODE LOGO KE BASE64 =====================
+def get_logo_base64():
+    try:
+        with open("logo_ojk.png", "rb") as f:
+            return base64.b64encode(f.read()).decode()
+    except:
+        return ""
+
+logo_b64 = get_logo_base64()
 
 # ===================== HALAMAN PEMBUKAAN =====================
 if st.session_state.halaman == "pembukaan":
 
     st.markdown("""
     <style>
-    .stApp {
-        background: #8B0000 !important;
-        background-image: none !important;
-    }
-    section[data-testid="stSidebar"] { display: none; }
-    header[data-testid="stHeader"] { background: transparent; }
+    .stApp { background: #8B0000 !important; background-image: none !important; }
+    header[data-testid="stHeader"] { background: transparent !important; }
     div.stButton > button:first-child {
         background-color: #FFD700 !important;
         color: #5a0000 !important;
@@ -28,7 +35,6 @@ if st.session_state.halaman == "pembukaan":
         padding: 14px 0 !important;
         border-radius: 8px !important;
         width: 100% !important;
-        letter-spacing: 0.3px;
     }
     div.stButton > button:first-child:hover {
         background-color: #ffe033 !important;
@@ -36,14 +42,14 @@ if st.session_state.halaman == "pembukaan":
     </style>
     """, unsafe_allow_html=True)
 
-    components.html("""
+    components.html(f"""
     <!DOCTYPE html>
     <html>
     <head>
     <meta charset="utf-8">
     <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body {
+    * {{ margin:0; padding:0; box-sizing:border-box; }}
+    body {{
         background: #8B0000;
         font-family: Arial, sans-serif;
         min-height: 100vh;
@@ -53,122 +59,168 @@ if st.session_state.halaman == "pembukaan":
         justify-content: center;
         text-align: center;
         padding: 40px 24px;
-        position: relative;
         overflow: hidden;
-    }
-    body::before {
+        position: relative;
+    }}
+    body::before {{
         content:'';
         position:fixed; inset:0;
         background: repeating-linear-gradient(
             45deg,transparent,transparent 30px,
-            rgba(255,255,255,0.02) 30px,rgba(255,255,255,0.02) 60px
+            rgba(255,255,255,0.015) 30px,rgba(255,255,255,0.015) 60px
         );
         pointer-events:none;
-    }
-    .gold-top {
+    }}
+    .gold-top {{
         position:fixed;top:0;left:0;right:0;height:5px;
-        background:linear-gradient(90deg,#b8860b,#FFD700,#b8860b);
-        z-index:999;
-    }
-    .gold-bot {
+        background:linear-gradient(90deg,#b8860b,#FFD700,#b8860b);z-index:999;
+    }}
+    .gold-bot {{
         position:fixed;bottom:0;left:0;right:0;height:5px;
-        background:linear-gradient(90deg,#b8860b,#FFD700,#b8860b);
-        z-index:999;
-    }
-    .logo-ring {
-        width:120px;height:120px;border-radius:50%;
-        background:white;border:3px solid #FFD700;
-        display:flex;align-items:center;justify-content:center;
-        margin:0 auto 24px;
-        animation:popIn 0.6s ease 0.2s both;
-    }
-    .logo-ring span {
-        font-size:16px;font-weight:900;color:#8B0000;
-        line-height:1.3;letter-spacing:1px;
-    }
-    @keyframes popIn {
-        from{transform:scale(0.4);opacity:0}
-        to{transform:scale(1);opacity:1}
-    }
-    @keyframes fadeUp {
-        from{transform:translateY(14px);opacity:0}
-        to{transform:translateY(0);opacity:1}
-    }
-    .inst-label {
+        background:linear-gradient(90deg,#b8860b,#FFD700,#b8860b);z-index:999;
+    }}
+
+    /* ---- LOGO ANIMASI ---- */
+    .logo-wrap {{
+        position: relative;
+        margin: 0 auto 30px;
+        width: 260px;
+        opacity: 0;
+        animation: logoIn 0.9s cubic-bezier(0.22,1,0.36,1) 0.3s forwards;
+    }}
+    @keyframes logoIn {{
+        0%   {{ opacity:0; transform: scale(0.6) translateY(-20px); }}
+        60%  {{ opacity:1; transform: scale(1.05) translateY(4px); }}
+        100% {{ opacity:1; transform: scale(1) translateY(0); }}
+    }}
+
+    .logo-wrap img {{
+        width: 260px;
+        filter: drop-shadow(0 4px 24px rgba(0,0,0,0.45));
+        animation: logoFloat 3.5s ease-in-out 1.5s infinite;
+    }}
+    @keyframes logoFloat {{
+        0%,100% {{ transform: translateY(0px); }}
+        50%     {{ transform: translateY(-7px); }}
+    }}
+
+    /* lingkaran cahaya di belakang logo */
+    .logo-glow {{
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        width: 220px; height: 220px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255,215,0,0.18) 0%, transparent 70%);
+        animation: glowPulse 3s ease-in-out 1.5s infinite;
+        pointer-events: none;
+    }}
+    @keyframes glowPulse {{
+        0%,100% {{ transform: translate(-50%,-50%) scale(1);   opacity:0.7; }}
+        50%     {{ transform: translate(-50%,-50%) scale(1.15); opacity:1;   }}
+    }}
+
+    /* garis emas bawah logo */
+    .gold-divider {{
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #FFD700, transparent);
+        margin: 0 auto 22px;
+        animation: growLine 0.7s ease 1.1s forwards;
+    }}
+    @keyframes growLine {{
+        to {{ width: 280px; }}
+    }}
+
+    .inst-label {{
         font-size:11px;letter-spacing:3px;text-transform:uppercase;
-        color:rgba(255,255,255,0.5);margin-bottom:16px;
-        animation:fadeUp 0.5s ease 0.8s both;
-    }
-    .typed-container {
-        min-height:52px;display:flex;
+        color:rgba(255,255,255,0.5);margin-bottom:14px;
+        opacity:0;
+        animation: fadeUp 0.5s ease 1.3s forwards;
+    }}
+
+    .typed-container {{
+        min-height:50px;display:flex;
         align-items:center;justify-content:center;
-        margin-bottom:12px;
-    }
-    #typed-out {
-        font-size:30px;font-weight:900;color:white;
+        margin-bottom:10px;
+    }}
+    #typed-out {{
+        font-size:28px;font-weight:900;color:white;
         text-shadow:0 2px 12px rgba(0,0,0,0.4);
         letter-spacing:0.5px;
-    }
-    .cursor-blink {
-        display:inline-block;width:3px;height:1.15em;
+    }}
+    .cursor-blink {{
+        display:inline-block;width:3px;height:1.1em;
         background:#FFD700;vertical-align:middle;margin-left:4px;
         animation:blink 0.7s step-end infinite;
-    }
-    @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-    .sub-anim {
-        font-size:14px;color:rgba(255,255,255,0.7);
-        font-style:italic;margin-bottom:28px;
+    }}
+    @keyframes blink{{0%,100%{{opacity:1}}50%{{opacity:0}}}}
+
+    .sub-anim {{
+        font-size:13.5px;color:rgba(255,255,255,0.7);
+        font-style:italic;margin-bottom:26px;
         opacity:0;transition:opacity 0.7s ease;
-    }
-    .badge-row {
+    }}
+    .badge-row {{
         display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
-        margin-bottom:28px;
+        margin-bottom:26px;
         opacity:0;transition:opacity 0.7s ease;
-    }
-    .badge {
+    }}
+    .badge {{
         background:rgba(255,255,255,0.1);
         border:1px solid rgba(255,215,0,0.35);
         color:rgba(255,255,255,0.85);
         font-size:11.5px;padding:6px 15px;border-radius:20px;
         display:inline-flex;align-items:center;gap:7px;
-    }
-    .badge-dot {
+    }}
+    .badge-dot {{
         width:7px;height:7px;border-radius:50%;
         background:#FFD700;display:inline-block;flex-shrink:0;
-    }
-    .appk-card {
+    }}
+    .appk-card {{
         background:rgba(255,255,255,0.1);
         border:1px solid rgba(255,215,0,0.45);
-        border-radius:12px;padding:22px 30px;
-        max-width:420px;margin:0 auto 20px;
+        border-radius:12px;padding:20px 28px;
+        max-width:400px;margin:0 auto 20px;
         opacity:0;transition:opacity 0.7s ease;
-    }
-    .appk-card-title {
+    }}
+    .appk-card-title {{
         font-size:10px;letter-spacing:2.5px;text-transform:uppercase;
-        color:rgba(255,255,255,0.5);margin-bottom:10px;
-    }
-    .appk-card-text {
+        color:rgba(255,255,255,0.5);margin-bottom:8px;
+    }}
+    .appk-card-text {{
         font-size:13.5px;color:rgba(255,255,255,0.85);
-        margin-bottom:16px;line-height:1.6;
-    }
-    .appk-btn {
+        margin-bottom:14px;line-height:1.6;
+    }}
+    .appk-btn {{
         display:inline-block;background:#FFD700;color:#5a0000;
         font-weight:800;font-size:13px;
-        padding:11px 24px;border-radius:7px;
-        text-decoration:none;letter-spacing:0.3px;
-    }
-    .appk-btn:hover { background:#ffe033; }
-    .footer-txt {
-        font-size:11px;color:rgba(255,255,255,0.3);
-        margin-top:12px;
-    }
+        padding:10px 22px;border-radius:7px;
+        text-decoration:none;
+    }}
+    .appk-btn:hover {{ background:#ffe033; }}
+
+    @keyframes fadeUp {{
+        from{{transform:translateY(14px);opacity:0}}
+        to{{transform:translateY(0);opacity:1}}
+    }}
+    .footer-txt {{
+        font-size:11px;color:rgba(255,255,255,0.3);margin-top:10px;
+    }}
     </style>
     </head>
     <body>
     <div class="gold-top"></div>
     <div class="gold-bot"></div>
 
-    <div class="logo-ring"><span>OJK<br>JEMBER</span></div>
+    <!-- LOGO DENGAN ANIMASI -->
+    <div class="logo-wrap">
+        <div class="logo-glow"></div>
+        <img src="data:image/png;base64,{logo_b64}" alt="Logo OJK">
+    </div>
+
+    <div class="gold-divider"></div>
+
     <div class="inst-label">Otoritas Jasa Keuangan &bull; Kantor Jember</div>
 
     <div class="typed-container">
@@ -197,7 +249,7 @@ if st.session_state.halaman == "pembukaan":
     <div class="footer-txt">&#169; 2026 Otoritas Jasa Keuangan | Layanan Perlindungan Konsumen</div>
 
     <script>
-    (function(){
+    (function(){{
         var teks   = "Portal Perlindungan Konsumen";
         var el     = document.getElementById("typed-out");
         var cur    = document.getElementById("cur");
@@ -205,24 +257,23 @@ if st.session_state.halaman == "pembukaan":
         var badges = document.getElementById("badges");
         var appk   = document.getElementById("appk");
         var i = 0;
-        function ketik(){
-            if(i < teks.length){
-                el.textContent += teks[i];
-                i++;
+        function ketik(){{
+            if(i < teks.length){{
+                el.textContent += teks[i]; i++;
                 setTimeout(ketik, 60);
-            } else {
-                setTimeout(function(){ cur.style.display="none"; }, 800);
-                setTimeout(function(){ sub.style.opacity="1"; }, 400);
-                setTimeout(function(){ badges.style.opacity="1"; }, 800);
-                setTimeout(function(){ appk.style.opacity="1"; }, 1200);
-            }
-        }
-        setTimeout(ketik, 1000);
-    })();
+            }} else {{
+                setTimeout(function(){{ cur.style.display="none"; }}, 800);
+                setTimeout(function(){{ sub.style.opacity="1"; }}, 400);
+                setTimeout(function(){{ badges.style.opacity="1"; }}, 800);
+                setTimeout(function(){{ appk.style.opacity="1"; }}, 1200);
+            }}
+        }}
+        setTimeout(ketik, 1500);
+    }})();
     </script>
     </body>
     </html>
-    """, height=700, scrolling=False)
+    """, height=750, scrolling=False)
 
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
@@ -262,46 +313,43 @@ elif st.session_state.halaman == "formulir":
     .mini-header {
         background: linear-gradient(135deg, #8B0000, #b22222);
         border-radius: 10px;
-        padding: 16px 24px;
-        display: flex; align-items: center; gap: 16px;
+        padding: 14px 20px;
+        display: flex; align-items: center; gap: 14px;
         margin-bottom: 12px;
         border-bottom: 3px solid #FFD700;
         font-family: Arial, sans-serif;
     }
-    .mini-logo {
-        width:50px;height:50px;border-radius:50%;
-        background:white;border:2px solid #FFD700;
-        display:flex;align-items:center;justify-content:center;
-        font-size:10px;font-weight:900;color:#8B0000;
-        line-height:1.2;text-align:center;flex-shrink:0;
-    }
-    .mini-title { font-size:16px;font-weight:900;color:white; }
-    .mini-sub   { font-size:11px;color:rgba(255,255,255,0.65);margin-top:2px; }
-    .info-ribbon {
-        background:#fffbf0;
-        border-left:4px solid #FFD700;
+    .mini-logo-img {{ width:52px; flex-shrink:0; }}
+    .mini-title {{ font-size:16px;font-weight:900;color:white; }}
+    .mini-sub   {{ font-size:11px;color:rgba(255,255,255,0.65);margin-top:2px; }}
+    .info-ribbon {{
+        background:#fffbf0;border-left:4px solid #FFD700;
         padding:11px 16px;border-radius:0 7px 7px 0;
         font-size:12.5px;color:#555;margin-bottom:16px;
         border:1px solid #f0e0a0;border-left:4px solid #FFD700;
         font-family:Arial,sans-serif;line-height:1.55;
-    }
-    .form-section-header {
+    }}
+    .form-section-header {{
         background:#f8f0f0;border-left:4px solid #b22222;
         padding:10px 16px;border-radius:0 6px 6px 0;
         font-size:13px;font-weight:700;color:#7a0000;
         margin-bottom:8px;margin-top:12px;
         font-family:Arial,sans-serif;
-    }
+    }}
     </style>
+    """, unsafe_allow_html=True)
 
+    # Mini header dengan logo asli
+    st.markdown(f"""
     <div class="mini-header">
-        <div class="mini-logo">OJK<br>JBR</div>
+        <img class="mini-logo-img"
+             src="data:image/png;base64,{logo_b64}"
+             alt="Logo OJK">
         <div>
             <div class="mini-title">Portal Perlindungan Konsumen</div>
             <div class="mini-sub">Formulir Layanan Surat Resmi &mdash; OJK Jember</div>
         </div>
     </div>
-
     <div class="info-ribbon">
         &#x2139;&#xFE0F;&nbsp;
         <strong>Petunjuk Pengisian:</strong> Pastikan NIK sesuai KTP (16 digit).

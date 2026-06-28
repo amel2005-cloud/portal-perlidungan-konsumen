@@ -184,7 +184,7 @@ if st.session_state.halaman == "pembukaan":
         <span id="typed-out"></span><span class="cursor-blink" id="cur"></span>
     </div>
 
-    <div class="sub-anim" id="sub">Layanan Surat Resmi Terintegrasi &mdash; OJK Jember</div>
+    <div class="sub-anim" id="sub">Layanan Surat Terintegrasi &mdash; OJK Jember</div>
 
     <div class="badge-row" id="badges">
         <span class="badge"><span class="badge-dot"></span>Resmi &amp; Terpercaya</span>
@@ -307,7 +307,7 @@ elif st.session_state.halaman == "formulir":
         <div class="mini-logo">OJK<br>JBR</div>
         <div>
             <div class="mini-title">Portal Perlindungan Konsumen</div>
-            <div class="mini-sub">Formulir Layanan Surat Resmi &mdash; OJK Jember</div>
+            <div class="mini-sub">Formulir Layanan Surat &mdash; OJK Jember</div>
         </div>
     </div>
 

@@ -4,9 +4,15 @@ from fpdf import FPDF
 from docx import Document
 from docx.shared import Pt
 from io import BytesIO
+import base64
+import os
 
 if "halaman" not in st.session_state:
     st.session_state.halaman = "pembukaan"
+
+def get_base64_image(image_path):
+    with open(image_path, "rb") as f:
+        return base64.b64encode(f.read()).decode()
 
 # ===================== HALAMAN PEMBUKAAN =====================
 if st.session_state.halaman == "pembukaan":
@@ -36,15 +42,34 @@ if st.session_state.halaman == "pembukaan":
     </style>
     """, unsafe_allow_html=True)
 
-    components.html("""
+    # Load gambar OJK Jember sebagai base64
+    # Ganti path ini dengan path gambar kamu yang sebenarnya
+    # Contoh: "ojk_jember.jpeg" jika ada di folder yang sama dengan app.py
+    img_b64 = ""
+    image_candidates = [
+        "ojk_jember.jpeg",
+        "ojk_jember.jpg",
+        "WhatsApp_Image_2026-06-27_at_23_16_57.jpeg",
+    ]
+    for candidate in image_candidates:
+        if os.path.exists(candidate):
+            img_b64 = get_base64_image(candidate)
+            break
+
+    if img_b64:
+        bg_style = f"background: linear-gradient(rgba(139,0,0,0.68), rgba(50,0,0,0.80)), url('data:image/jpeg;base64,{img_b64}') center/cover no-repeat;"
+    else:
+        bg_style = "background: #8B0000;"
+
+    components.html(f"""
     <!DOCTYPE html>
     <html>
     <head>
     <meta charset="utf-8">
     <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body {
-        background: #8B0000;
+    * {{ margin:0; padding:0; box-sizing:border-box; }}
+    body {{
+        {bg_style}
         font-family: Arial, sans-serif;
         min-height: 100vh;
         display: flex;
@@ -55,113 +80,118 @@ if st.session_state.halaman == "pembukaan":
         padding: 40px 24px;
         position: relative;
         overflow: hidden;
-    }
-    body::before {
+    }}
+    body::before {{
         content:'';
         position:fixed; inset:0;
         background: repeating-linear-gradient(
             45deg,transparent,transparent 30px,
-            rgba(255,255,255,0.02) 30px,rgba(255,255,255,0.02) 60px
+            rgba(255,255,255,0.015) 30px,rgba(255,255,255,0.015) 60px
         );
         pointer-events:none;
-    }
-    .gold-top {
+    }}
+    .gold-top {{
         position:fixed;top:0;left:0;right:0;height:5px;
         background:linear-gradient(90deg,#b8860b,#FFD700,#b8860b);
         z-index:999;
-    }
-    .gold-bot {
+    }}
+    .gold-bot {{
         position:fixed;bottom:0;left:0;right:0;height:5px;
         background:linear-gradient(90deg,#b8860b,#FFD700,#b8860b);
         z-index:999;
-    }
-    .logo-ring {
+    }}
+    .logo-ring {{
         width:120px;height:120px;border-radius:50%;
         background:white;border:3px solid #FFD700;
         display:flex;align-items:center;justify-content:center;
         margin:0 auto 24px;
         animation:popIn 0.6s ease 0.2s both;
-    }
-    .logo-ring span {
+    }}
+    .logo-ring span {{
         font-size:16px;font-weight:900;color:#8B0000;
         line-height:1.3;letter-spacing:1px;
-    }
-    @keyframes popIn {
-        from{transform:scale(0.4);opacity:0}
-        to{transform:scale(1);opacity:1}
-    }
-    @keyframes fadeUp {
-        from{transform:translateY(14px);opacity:0}
-        to{transform:translateY(0);opacity:1}
-    }
-    .inst-label {
+    }}
+    @keyframes popIn {{
+        from{{transform:scale(0.4);opacity:0}}
+        to{{transform:scale(1);opacity:1}}
+    }}
+    @keyframes fadeUp {{
+        from{{transform:translateY(14px);opacity:0}}
+        to{{transform:translateY(0);opacity:1}}
+    }}
+    .inst-label {{
         font-size:11px;letter-spacing:3px;text-transform:uppercase;
-        color:rgba(255,255,255,0.5);margin-bottom:16px;
+        color:rgba(255,255,255,0.6);margin-bottom:16px;
         animation:fadeUp 0.5s ease 0.8s both;
-    }
-    .typed-container {
+        text-shadow:0 1px 4px rgba(0,0,0,0.6);
+    }}
+    .typed-container {{
         min-height:52px;display:flex;
         align-items:center;justify-content:center;
         margin-bottom:12px;
-    }
-    #typed-out {
+    }}
+    #typed-out {{
         font-size:30px;font-weight:900;color:white;
-        text-shadow:0 2px 12px rgba(0,0,0,0.4);
+        text-shadow:0 2px 16px rgba(0,0,0,0.7);
         letter-spacing:0.5px;
-    }
-    .cursor-blink {
+    }}
+    .cursor-blink {{
         display:inline-block;width:3px;height:1.15em;
         background:#FFD700;vertical-align:middle;margin-left:4px;
         animation:blink 0.7s step-end infinite;
-    }
-    @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-    .sub-anim {
-        font-size:14px;color:rgba(255,255,255,0.7);
+    }}
+    @keyframes blink{{0%,100%{{opacity:1}}50%{{opacity:0}}}}
+    .sub-anim {{
+        font-size:14px;color:rgba(255,255,255,0.82);
         font-style:italic;margin-bottom:28px;
         opacity:0;transition:opacity 0.7s ease;
-    }
-    .badge-row {
+        text-shadow:0 1px 6px rgba(0,0,0,0.6);
+    }}
+    .badge-row {{
         display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
         margin-bottom:28px;
         opacity:0;transition:opacity 0.7s ease;
-    }
-    .badge {
-        background:rgba(255,255,255,0.1);
-        border:1px solid rgba(255,215,0,0.35);
-        color:rgba(255,255,255,0.85);
+    }}
+    .badge {{
+        background:rgba(0,0,0,0.35);
+        border:1px solid rgba(255,215,0,0.45);
+        color:rgba(255,255,255,0.9);
         font-size:11.5px;padding:6px 15px;border-radius:20px;
         display:inline-flex;align-items:center;gap:7px;
-    }
-    .badge-dot {
+        backdrop-filter:blur(4px);
+    }}
+    .badge-dot {{
         width:7px;height:7px;border-radius:50%;
         background:#FFD700;display:inline-block;flex-shrink:0;
-    }
-    .appk-card {
-        background:rgba(255,255,255,0.1);
+    }}
+    .appk-card {{
+        background:rgba(0,0,0,0.40);
         border:1px solid rgba(255,215,0,0.45);
         border-radius:12px;padding:22px 30px;
         max-width:420px;margin:0 auto 20px;
         opacity:0;transition:opacity 0.7s ease;
-    }
-    .appk-card-title {
+        backdrop-filter:blur(6px);
+    }}
+    .appk-card-title {{
         font-size:10px;letter-spacing:2.5px;text-transform:uppercase;
-        color:rgba(255,255,255,0.5);margin-bottom:10px;
-    }
-    .appk-card-text {
-        font-size:13.5px;color:rgba(255,255,255,0.85);
+        color:rgba(255,255,255,0.55);margin-bottom:10px;
+    }}
+    .appk-card-text {{
+        font-size:13.5px;color:rgba(255,255,255,0.88);
         margin-bottom:16px;line-height:1.6;
-    }
-    .appk-btn {
+    }}
+    .appk-btn {{
         display:inline-block;background:#FFD700;color:#5a0000;
         font-weight:800;font-size:13px;
         padding:11px 24px;border-radius:7px;
         text-decoration:none;letter-spacing:0.3px;
-    }
-    .appk-btn:hover { background:#ffe033; }
-    .footer-txt {
-        font-size:11px;color:rgba(255,255,255,0.3);
+    }}
+    .appk-btn:hover {{ background:#ffe033; }}
+    .footer-txt {{
+        font-size:11px;color:rgba(255,255,255,0.4);
         margin-top:12px;
-    }
+        text-shadow:0 1px 3px rgba(0,0,0,0.5);
+    }}
     </style>
     </head>
     <body>
@@ -197,7 +227,7 @@ if st.session_state.halaman == "pembukaan":
     <div class="footer-txt">&#169; 2026 Otoritas Jasa Keuangan | Layanan Perlindungan Konsumen</div>
 
     <script>
-    (function(){
+    (function(){{
         var teks   = "Portal Perlindungan Konsumen";
         var el     = document.getElementById("typed-out");
         var cur    = document.getElementById("cur");
@@ -205,20 +235,20 @@ if st.session_state.halaman == "pembukaan":
         var badges = document.getElementById("badges");
         var appk   = document.getElementById("appk");
         var i = 0;
-        function ketik(){
-            if(i < teks.length){
+        function ketik(){{
+            if(i < teks.length){{
                 el.textContent += teks[i];
                 i++;
                 setTimeout(ketik, 60);
-            } else {
-                setTimeout(function(){ cur.style.display="none"; }, 800);
-                setTimeout(function(){ sub.style.opacity="1"; }, 400);
-                setTimeout(function(){ badges.style.opacity="1"; }, 800);
-                setTimeout(function(){ appk.style.opacity="1"; }, 1200);
-            }
-        }
+            }} else {{
+                setTimeout(function(){{ cur.style.display="none"; }}, 800);
+                setTimeout(function(){{ sub.style.opacity="1"; }}, 400);
+                setTimeout(function(){{ badges.style.opacity="1"; }}, 800);
+                setTimeout(function(){{ appk.style.opacity="1"; }}, 1200);
+            }}
+        }}
         setTimeout(ketik, 1000);
-    })();
+    }})();
     </script>
     </body>
     </html>

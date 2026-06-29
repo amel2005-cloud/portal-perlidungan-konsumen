@@ -76,6 +76,16 @@ def load_db():
         return pd.DataFrame(rows, columns=cols2)
     return pd.DataFrame()
 
+def hapus_satu(row_id: int):
+    con = sqlite3.connect(DB)
+    con.execute("DELETE FROM pengaduan WHERE id=?", (row_id,))
+    con.commit(); con.close()
+
+def hapus_semua():
+    con = sqlite3.connect(DB)
+    con.execute("DELETE FROM pengaduan")
+    con.commit(); con.close()
+
 def no_surat_baru(tipe):
     con = sqlite3.connect(DB)
     count = con.execute("SELECT COUNT(*) FROM pengaduan WHERE tipe=?", (tipe,)).fetchone()[0] + 1
@@ -516,8 +526,40 @@ elif st.session_state.halaman == "dashboard":
             else:
                 st.info("Belum ada data pengaduan ke lembaga tertentu.")
 
-        # ── Tabel data ────────────────────────────────────────────────────────
+        # ── Tabel data + hapus ───────────────────────────────────────────────
         st.markdown("### 📋 Riwayat Surat Masuk")
+
+        # Hapus semua
+        with st.expander("🗑️ Kelola / Hapus Data"):
+            st.warning("⚠️ Tindakan hapus tidak bisa dibatalkan!")
+            col_hps1, col_hps2 = st.columns([2,1])
+            with col_hps1:
+                id_hapus = st.selectbox(
+                    "Pilih No. Surat yang ingin dihapus",
+                    options=df["id"].tolist(),
+                    format_func=lambda x: f"{df[df['id']==x]['no_surat'].values[0]}  —  {df[df['id']==x]['nama'].values[0]}  ({df[df['id']==x]['tipe'].values[0]})"
+                )
+            with col_hps2:
+                st.markdown("<br>", unsafe_allow_html=True)
+                if st.button("🗑️ Hapus Surat Ini", type="secondary"):
+                    hapus_satu(id_hapus)
+                    st.success("✅ Data berhasil dihapus.")
+                    st.rerun()
+            st.markdown("---")
+            if st.button("🚨 Hapus SEMUA Data", type="primary"):
+                if "konfirm_hapus_semua" not in st.session_state:
+                    st.session_state.konfirm_hapus_semua = True
+                    st.warning("⚠️ Klik sekali lagi untuk konfirmasi hapus semua data.")
+            if st.session_state.get("konfirm_hapus_semua"):
+                if st.button("✅ Ya, hapus semua data sekarang"):
+                    hapus_semua()
+                    st.session_state.konfirm_hapus_semua = False
+                    st.success("✅ Semua data berhasil dihapus.")
+                    st.rerun()
+                if st.button("❌ Batal"):
+                    st.session_state.konfirm_hapus_semua = False
+                    st.rerun()
+
         tampil = df[["no_surat","tipe","nama","pt_dituju","tanggal","created_at"]].copy()
         tampil.columns = ["No. Surat","Jenis","Nama Pemohon","PT/Lembaga","Tgl Surat","Dibuat"]
         st.dataframe(tampil, use_container_width=True, hide_index=True)

@@ -140,8 +140,6 @@ def buat_pdf(d):
     pdf = FPDF(); pdf.add_page(); pdf.set_margins(20,20,20)
     if d["tipe"] == "Surat Pernyataan":
         pdf.set_font("Arial","B",14)
-        pdf.cell(0,8,txt=bersihkan(d["no_surat"]),ln=True,align="R")
-        pdf.ln(2)
         pdf.cell(0,10,txt="SURAT PERNYATAAN",ln=True,align="C")
         pdf.ln(6); pdf.set_font("Arial",size=12)
         pdf.cell(0,8,txt="Yang bertanda tangan di bawah ini:",ln=True)
@@ -152,8 +150,6 @@ def buat_pdf(d):
         pdf.ln(6); pdf.multi_cell(0,8,txt=bersihkan(TEKS_PENUTUP))
     else:
         pdf.set_font("Arial","B",14)
-        pdf.cell(0,8,txt=bersihkan(d["no_surat"]),ln=True,align="R")
-        pdf.ln(2)
         pdf.cell(0,10,txt="SURAT PENGADUAN",ln=True,align="C")
         pdf.ln(6); pdf.set_font("Arial",size=12)
         pdf.cell(0,8,txt=bersihkan(f"Kepada Yth. {d['pt_dituju']}"),ln=True)
@@ -174,7 +170,6 @@ def buat_word(d):
     doc = Document()
     tgl_str = datetime.datetime.strptime(d["tanggal"],"%Y-%m-%d").strftime("%d %B %Y")
     if d["tipe"] == "Surat Pernyataan":
-        p = doc.add_paragraph(d["no_surat"]); p.alignment = 2
         judul = doc.add_paragraph("SURAT PERNYATAAN"); judul.alignment = 1
         judul.runs[0].bold = True; judul.runs[0].font.size = Pt(14)
         doc.add_paragraph(""); doc.add_paragraph("Yang bertanda tangan di bawah ini:")
@@ -184,7 +179,6 @@ def buat_word(d):
         doc.add_paragraph(""); doc.add_paragraph(TEKS_PERNYATAAN)
         doc.add_paragraph(""); doc.add_paragraph(TEKS_PENUTUP)
     else:
-        p = doc.add_paragraph(d["no_surat"]); p.alignment = 2
         judul = doc.add_paragraph("SURAT PENGADUAN"); judul.alignment = 1
         judul.runs[0].bold = True; judul.runs[0].font.size = Pt(14)
         doc.add_paragraph(""); doc.add_paragraph(f"Kepada Yth. {d['pt_dituju']}")

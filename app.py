@@ -10,20 +10,6 @@ from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email import encoders
 
-# ─── CONFIG EMAIL (isi di Streamlit Secrets atau .env) ───────────────────────
-# Di Streamlit Cloud: Settings > Secrets
-# [email]
-# sender    = "ojkjember@gmail.com"
-# password  = "xxxx xxxx xxxx xxxx"   # Gmail App Password
-SMTP_HOST = "smtp.gmail.com"
-SMTP_PORT = 587
-
-def get_email_cfg():
-    try:
-        return st.secrets["email"]["sender"], st.secrets["email"]["password"]
-    except Exception:
-        return os.getenv("EMAIL_SENDER",""), os.getenv("EMAIL_PASSWORD","")
-
 # ─── DATABASE ────────────────────────────────────────────────────────────────
 DB = "ojk_pengaduan.db"
 

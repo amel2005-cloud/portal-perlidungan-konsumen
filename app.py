@@ -398,13 +398,6 @@ elif st.session_state.halaman == "formulir":
 
             st.success(f"✅ Surat **{no_surat}** berhasil dibuat dan tersimpan di database!")
 
-            # kirim email
-            if kirim_ke_email and email_pemohon:
-                with st.spinner(f"Mengirim email ke {email_pemohon}..."):
-                    ok, msg = kirim_email(email_pemohon, nama, no_surat, pdf_bytes)
-                if ok: st.success(f"📧 Email berhasil dikirim ke {email_pemohon}")
-                else:  st.warning(f"⚠️ Email gagal dikirim: {msg}")
-
             c1,c2 = st.columns(2)
             fname = no_surat.replace("/","_")
             with c1:

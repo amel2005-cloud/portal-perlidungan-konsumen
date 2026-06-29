@@ -291,7 +291,7 @@ if st.session_state.halaman == "pembukaan":
 
     c1,c2,c3 = st.columns([1,2,1])
     with c2:
-        if st.button("📄 Lanjut ke Formulir Surat Resmi"):
+        if st.button("📄 Lanjut ke Formulir Surat"):
             st.session_state.halaman = "formulir"; st.rerun()
     c4,c5,c6 = st.columns([1,2,1])
     with c5:
@@ -327,7 +327,7 @@ elif st.session_state.halaman == "formulir":
     <div class="mini-header">
         <div class="mini-logo">OJK<br>JBR</div>
         <div><div class="mini-title">Portal Perlindungan Konsumen</div>
-        <div class="mini-sub">Formulir Layanan Surat Resmi &mdash; OJK Jember</div></div>
+        <div class="mini-sub">Formulir Layanan Surat &mdash; OJK Jember</div></div>
     </div>
     <div class="info-ribbon">
         &#x2139;&#xFE0F;&nbsp;<strong>Petunjuk Pengisian:</strong> Pastikan NIK sesuai KTP (16 digit). Isi semua kolom dengan benar dan lengkap.

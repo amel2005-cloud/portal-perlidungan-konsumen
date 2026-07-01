@@ -128,39 +128,63 @@ TEKS_PENUTUP = "Demikian surat pernyataan ini dibuat dengan sadar dan tanpa paks
 def bersihkan(t):
     if not t: return ""
     return t.encode("latin-1","replace").decode("latin-1")
-
-def cetak_baris(pdf, label, nilai):
-    pdf.cell(40,8,txt=label,ln=0); pdf.cell(5,8,txt=":",ln=0); pdf.cell(0,8,txt=nilai,ln=1)
+def cetak_baris(pdf, label, nilai, lebar_label=45):
+    """Cetak baris 'Label : Nilai' dengan nilai yang auto-wrap kalau panjang."""
+    pdf.set_font("Arial", size=12)
+    pdf.cell(lebar_label, 8, txt=label, ln=0)
+    pdf.cell(5, 8, txt=":", ln=0)
+    # multi_cell otomatis pindah baris & TIDAK memotong teks
+    pdf.multi_cell(0, 8, txt=nilai)
 
 def buat_pdf(d):
-    pdf = FPDF(); pdf.add_page(); pdf.set_margins(20,20,20)
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_margins(20, 20, 20)
+    pdf.set_auto_page_break(auto=True, margin=20)  # otomatis nambah halaman kalau teks panjang
+
     if d["tipe"] == "Surat Pernyataan":
-        pdf.set_font("Arial","B",14)
-        pdf.cell(0,10,txt="SURAT PERNYATAAN",ln=True,align="C")
-        pdf.ln(6); pdf.set_font("Arial",size=12)
-        pdf.cell(0,8,txt="Yang bertanda tangan di bawah ini:",ln=True)
-        cetak_baris(pdf,"Nama",bersihkan(d["nama"]))
-        cetak_baris(pdf,"NIK",bersihkan(d["nik"]))
-        cetak_baris(pdf,"Alamat",bersihkan(d["alamat"]))
-        pdf.ln(6); pdf.multi_cell(0,8,txt=bersihkan(TEKS_PERNYATAAN))
-        pdf.ln(6); pdf.multi_cell(0,8,txt=bersihkan(TEKS_PENUTUP))
+        pdf.set_font("Arial", "B", 14)
+        pdf.cell(0, 12, txt="SURAT PERNYATAAN", ln=True, align="C")
+        pdf.ln(6)
+        pdf.set_font("Arial", size=12)
+        pdf.cell(0, 8, txt="Yang bertanda tangan di bawah ini:", ln=True)
+        cetak_baris(pdf, "Nama", bersihkan(d["nama"]))
+        cetak_baris(pdf, "NIK", bersihkan(d["nik"]))
+        cetak_baris(pdf, "Alamat", bersihkan(d["alamat"]))
+        pdf.ln(6)
+        pdf.set_font("Arial", size=12)
+        pdf.multi_cell(0, 8, txt=bersihkan(TEKS_PERNYATAAN))
+        pdf.ln(6)
+        pdf.multi_cell(0, 8, txt=bersihkan(TEKS_PENUTUP))
     else:
-        pdf.set_font("Arial","B",14)
-        pdf.cell(0,10,txt="SURAT PENGADUAN",ln=True,align="C")
-        pdf.ln(6); pdf.set_font("Arial",size=12)
-        pdf.cell(0,8,txt=bersihkan(f"Kepada Yth. {d['pt_dituju']}"),ln=True)
-        pdf.ln(4); pdf.cell(0,8,txt="Yang bertanda tangan di bawah ini:",ln=True)
-        cetak_baris(pdf,"Nama",bersihkan(d["nama"]))
-        cetak_baris(pdf,"NIK",bersihkan(d["nik"]))
-        cetak_baris(pdf,"Alamat",bersihkan(d["alamat"]))
-        cetak_baris(pdf,"No. HP",bersihkan(d["no_hp"]))
-        cetak_baris(pdf,"Email",bersihkan(d["email"]))
-        pdf.ln(5); pdf.cell(0,8,txt="Kronologis permasalahan:",ln=True)
-        pdf.multi_cell(0,8,txt=bersihkan(d["kronologis"]))
-    tgl_str = datetime.datetime.strptime(d["tanggal"],"%Y-%m-%d").strftime("%d %B %Y")
-    pdf.ln(20); pdf.cell(110); pdf.cell(0,8,txt=bersihkan(f"{d['kota']}, {tgl_str}"),ln=True)
-    pdf.ln(20); pdf.cell(110); pdf.cell(0,8,txt=bersihkan(f"({d['nama']})"),ln=True)
+        pdf.set_font("Arial", "B", 14)
+        pdf.cell(0, 12, txt="SURAT PENGADUAN", ln=True, align="C")
+        pdf.ln(6)
+        pdf.set_font("Arial", size=12)
+        pdf.multi_cell(0, 8, txt=bersihkan(f"Kepada Yth. {d['pt_dituju']}"))
+        pdf.ln(4)
+        pdf.cell(0, 8, txt="Yang bertanda tangan di bawah ini:", ln=True)
+        cetak_baris(pdf, "Nama", bersihkan(d["nama"]))
+        cetak_baris(pdf, "NIK", bersihkan(d["nik"]))
+        cetak_baris(pdf, "Alamat", bersihkan(d["alamat"]))
+        cetak_baris(pdf, "No. HP", bersihkan(d["no_hp"]))
+        cetak_baris(pdf, "Email", bersihkan(d["email"]))
+        pdf.ln(5)
+        pdf.cell(0, 8, txt="Kronologis permasalahan:", ln=True)
+        pdf.set_font("Arial", size=12)
+        pdf.multi_cell(0, 8, txt=bersihkan(d["kronologis"]))
+
+    tgl_str = datetime.datetime.strptime(d["tanggal"], "%Y-%m-%d").strftime("%d %B %Y")
+    pdf.ln(20)
+    pdf.set_font("Arial", size=12)
+    pdf.cell(110)
+    pdf.cell(0, 8, txt=bersihkan(f"{d['kota']}, {tgl_str}"), ln=True)
+    pdf.ln(20)
+    pdf.cell(110)
+    pdf.cell(0, 8, txt=bersihkan(f"({d['nama']})"), ln=True)
+
     return pdf.output(dest="S").encode("latin-1")
+
 
 def buat_word(d):
     doc = Document()
